@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tranzyty Planet</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #f4f6fb;
+    --white:    #ffffff;
+    --accent:   #1e3a5f;
+    --accent2:  #2d5a8e;
+    --teal:     #1a7a8a;
+    --teal-lt:  #e8f5f7;
+    --gold:     #9a6f20;
+    --gold-lt:  #fdf6e8;
+    --text:     #1a2030;
+    --muted:    #6070a0;
+    --border:   #dce4f4;
+    --red:      #b03030;
+    --shadow:   0 2px 20px rgba(30,58,95,0.10);
+    --shadow2:  0 4px 32px rgba(30,58,95,0.16);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Raleway', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 16px 28px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 780px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .header-inner {
+    display: inline-block;
+    background: var(--white);
+    border-radius: 6px;
+    padding: 20px 40px 16px;
+    box-shadow: var(--shadow2);
+    border-top: 4px solid var(--accent);
+  }
+
+  h1 {
+    font-size: clamp(17px, 2.8vw, 26px);
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  #current-date {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+
+  .accent-bar {
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--teal));
+    border-radius: 2px;
+    margin: 10px auto 0;
+  }
+
+  /* ── GRID ── */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media (max-width: 560px) {
+    .content-grid { grid-template-columns: 1fr; }
+    .header-inner { padding: 16px 24px 14px; }
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--white);
+    border-radius: 6px;
+    box-shadow: var(--shadow2);
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-header-icon {
+    font-size: 16px;
+    opacity: 0.85;
+    color: #fff;
+  }
+
+  .card-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.92);
+  }
+
+  .card-body {
+    padding: 18px;
+  }
+
+  /* ── WHEEL ── */
+  .wheel-card .card-body {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    background: radial-gradient(ellipse at center, #eef2fb 0%, #f8faff 100%);
+  }
+
+  #horoscope-wheel {
+    width: 100%;
+    max-width: 270px;
+    height: auto;
+    filter: drop-shadow(0 2px 8px rgba(30,58,95,0.12));
+  }
+
+  /* ── PLANET ROWS ── */
+  .planet-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 4px;
+    border-bottom: 1px solid var(--border);
+    border-radius: 3px;
+    transition: background 0.15s;
+    animation: fadeIn 0.35s ease both;
+  }
+
+  .planet-row:hover { background: #f4f7ff; }
+  .planet-row:last-child { border-bottom: none; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-4px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .planet-symbol {
+    font-size: 17px;
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .planet-name {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    width: 58px;
+    flex-shrink: 0;
+  }
+
+  .planet-position {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .sign-symbol { font-size: 13px; flex-shrink: 0; }
+
+  .sign-name {
+    font-family: 'Lora', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--teal);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .retrograde {
+    color: var(--red);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    background: #fdecea;
+    padding: 1px 4px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Degrees+minutes badge */
+  .degrees {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--white);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    padding: 2px 7px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 30px;
+    color: var(--muted);
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 14px;
+  }
+
+  .loading::after {
+    content: '';
+    display: inline-block;
+    animation: dots 1.5s infinite;
+  }
+
+  @keyframes dots {
+    0%   { content: ''; }
+    33%  { content: '.'; }
+    66%  { content: '..'; }
+    100% { content: '...'; }
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="header-inner">
+      <h1>Niebo Teraz</h1>
+      <div class="subtitle">Aktualne Pozycje Planet</div>
+      <div id="current-date"></div>
+      <div class="accent-bar"></div>
+    </div>
+  </header>
+
+  <div class="content-grid">
+
+    <!-- WHEEL -->
+    <div class="card wheel-card">
+      <div class="card-header">
+        <span class="card-header-icon">◯</span>
+        <span class="card-title">Koło Zodiaku</span>
+      </div>
+      <div class="card-body">
+        <svg id="horoscope-wheel" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+    </div>
+
+    <!-- LIST -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-header-icon">♃</span>
+        <span class="card-title">Pozycje Planet</span>
+      </div>
+      <div class="card-body">
+        <div id="planet-list"><div class="loading">Obliczam pozycje</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>Obliczenia astronomiczne · Czas UTC · astrologiaewolucyjna.com</footer>
+</div>
+
+<script>
+const DEG = Math.PI / 180;
+const RAD = 180 / Math.PI;
+
+function julianDate(date) {
+  const y = date.getUTCFullYear(), m = date.getUTCMonth() + 1;
+  const d = date.getUTCDate() + (date.getUTCHours() + date.getUTCMinutes()/60 + date.getUTCSeconds()/3600) / 24;
+  let jy = y, jm = m;
+  if (m <= 2) { jy--; jm += 12; }
+  const A = Math.floor(jy/100), B = 2 - A + Math.floor(A/4);
+  return Math.floor(365.25*(jy+4716)) + Math.floor(30.6001*(jm+1)) + d + B - 1524.5;
+}
+
+function normalize(deg) { return ((deg % 360) + 360) % 360; }
+
+function sunPosition(jd) {
+  const T = (jd - 2451545.0) / 36525;
+  const M = normalize(357.52911 + 35999.05029*T - 0.0001537*T*T);
+  const C = (1.914602 - 0.004817*T - 0.000014*T*T)*Math.sin(M*DEG)
+          + (0.019993 - 0.000101*T)*Math.sin(2*M*DEG)
+          + 0.000289*Math.sin(3*M*DEG);
+  return { lon: normalize(280.46646 + 36000.76983*T + 0.0003032*T*T + C), retrograde: false };
+}
+
+function moonPosition(jd) {
+  const T = (jd - 2451545.0) / 36525;
+  const L0 = normalize(218.3165 + 481267.8813*T);
+  const M  = normalize(134.9634 + 477198.8676*T);
+  const Mp = normalize(357.5291 + 35999.0503*T);
+  const D  = normalize(297.8502 + 445267.1115*T);
+  const F  = normalize(93.2721  + 483202.0175*T);
+  return { lon: normalize(L0
+    + 6.2888*Math.sin(M*DEG) + 1.2740*Math.sin((2*D-M)*DEG)
+    + 0.6583*Math.sin(2*D*DEG) + 0.2136*Math.sin(2*M*DEG)
+    - 0.1851*Math.sin(Mp*DEG) - 0.1143*Math.sin(2*F*DEG)
+    + 0.0588*Math.sin((2*D-2*M)*DEG) + 0.0572*Math.sin((2*D-Mp-M)*DEG)
+    + 0.0533*Math.sin((2*D+M)*DEG)), retrograde: false };
+}
+
+function keplerLon(jd, a0,e0,i0,L0,lp0,lan0, da,de,di,dL,dlp,dlan) {
+  const T = (jd - 2451545.0) / 36525;
+  const e = e0 + de*T, lp = normalize(lp0 + dlp*T), lan = normalize(lan0 + dlan*T);
+  const M = normalize(L0 + dL*T - lp);
+  let E = M + e*RAD*Math.sin(M*DEG);
+  for (let i = 0; i < 10; i++) {
+    const dE = (M - (E - e*RAD*Math.sin(E*DEG))) / (1 - e*Math.cos(E*DEG));
+    E += dE; if (Math.abs(dE) < 1e-8) break;
+  }
+  const x = Math.cos(E*DEG) - e, y = Math.sqrt(1 - e*e)*Math.sin(E*DEG);
+  const v = normalize(Math.atan2(y,x)*RAD), w = normalize(lp - lan);
+  const il = (i0 + di*T)*DEG, vl = (v+w)*DEG, lanl = lan*DEG;
+  const xh = Math.cos(lanl)*Math.cos(vl) - Math.sin(lanl)*Math.sin(vl)*Math.cos(il);
+  const yh = Math.sin(lanl)*Math.cos(vl) + Math.cos(lanl)*Math.sin(vl)*Math.cos(il);
+  return normalize(Math.atan2(yh,xh)*RAD);
+}
+
+function isRetro(fn, jd) {
+  let d = fn(jd+1) - fn(jd-1);
+  if (d > 180) d -= 360; if (d < -180) d += 360;
+  return d < 0;
+}
+
+const KP = {
+  mercury: [0.38710,0.20563,7.0050,252.2509,77.4561,48.3310, 0,0.00002,-0.0059,149472.6743,0.1564,-0.1254],
+  venus:   [0.72333,0.00677,3.3947,181.9798,131.5637,76.6799, 0,-0.00005,-0.0032,58517.8157,0.5152,-0.2700],
+  mars:    [1.52366,0.09341,1.8497,-4.5531,336.0602,49.5581, 0.00001,0.00009,-0.0081,19140.2993,1.8533,-0.2914],
+  jupiter: [5.20260,0.04852,1.3030,34.3971,14.3312,100.5560, 0.00010,0.00019,-0.0019,3034.9057,0.2175,0.2040],
+  saturn:  [9.55491,0.05551,2.4888,50.0774,93.0572,113.7150, -0.00021,-0.00032,0.0051,1222.1138,0.8321,-0.5765],
+  uranus:  [19.21845,0.04630,0.7732,314.0550,173.0052,74.0050, 0.00019,-0.00028,0.0019,428.4882,0.0636,0.1453],
+  neptune: [30.11039,0.00899,1.7700,304.3487,48.1264,131.7540, 0.00006,0.00006,0.0095,218.4580,0.0784,-0.0074],
+  pluto:   [39.48169,0.24882,17.1420,238.9290,224.0690,110.3030, -0.00048,0.00006,0.0078,145.2078,-0.9781,-0.0058],
+};
+
+const SIGNS = [
+  { name:'Baran',      symbol:'♈', color:'#c0392b' },
+  { name:'Byk',        symbol:'♉', color:'#27ae60' },
+  { name:'Bliźnięta',  symbol:'♊', color:'#c8961a' },
+  { name:'Rak',        symbol:'♋', color:'#2980b9' },
+  { name:'Lew',        symbol:'♌', color:'#d35400' },
+  { name:'Panna',      symbol:'♍', color:'#16a085' },
+  { name:'Waga',       symbol:'♎', color:'#8e44ad' },
+  { name:'Skorpion',   symbol:'♏', color:'#922b21' },
+  { name:'Strzelec',   symbol:'♐', color:'#ca6f1e' },
+  { name:'Koziorożec', symbol:'♑', color:'#566573' },
+  { name:'Wodnik',     symbol:'♒', color:'#1a5276' },
+  { name:'Ryby',       symbol:'♓', color:'#6c3483' },
+];
+
+function getSign(lon) {
+  const idx = Math.floor(lon / 30);
+  const degTotal = lon % 30;
+  const deg = Math.floor(degTotal);
+  const min = Math.floor((degTotal - deg) * 60);
+  return { ...SIGNS[idx], deg, min };
+}
+
+const PLANETS = [
+  { name:'Słońce',  symbol:'☉', color:'#c47c0a', calc: jd => sunPosition(jd) },
+  { name:'Księżyc', symbol:'☽', color:'#2471a3', calc: jd => moonPosition(jd) },
+  { name:'Merkury', symbol:'☿', color:'#707b8a', calc: jd => { const p=KP.mercury; const lon=keplerLon(jd,...p); return { lon, retrograde: isRetro(d=>keplerLon(d,...p),jd) }; } },
+  { name:'Wenus',   symbol:'♀', color:'#1e8449', calc: jd => { const p=KP.venus;   const lon=keplerLon(jd,...p); return { lon, retrograde: isRetro(d=>keplerLon(d,...p),jd) }; } },
+  { name:'Mars',    symbol:'♂', color:'#c0392b', calc: jd => { const p=KP.mars;    const lon=keplerLon(jd,...p); return { lon, retrograde: isRetro(d=>keplerLon(d,...p),jd) }; } },
+  { name:'Jowisz',  symbol:'♃', color:'#9a6b00', calc: jd => { const p=KP.jupiter; const lon=keplerLon(jd,...p); return { lon, retrograde: isRetro(d=>keplerLon(d,...p),jd) }; } },
+  { name:'Saturn',  symbol:'♄', color:'#7d6608', calc: jd => { const p=KP.saturn;  const lon=keplerLon(jd,...p); return { lon, retrograde: isRetro(d=>keplerLon(d,...p),jd) }; } },
+  { name:'Uran',    symbol:'⛢', color:'#0e7490', calc: jd => { const p=KP.uranus;  const lon=keplerLon(jd,...p); return { lon, retrograde: isRetro(d=>keplerLon(d,...p),jd) }; } },
+  { name:'Neptun',  symbol:'♆', color:'#1a3a7e', calc: jd => { const p=KP.neptune; const lon=keplerLon(jd,...p); return { lon, retrograde: isRetro(d=>keplerLon(d,...p),jd) }; } },
+  { name:'Pluton',  symbol:'♇', color:'#6d4c41', calc: jd => { const p=KP.pluto;   const lon=keplerLon(jd,...p); return { lon, retrograde: isRetro(d=>keplerLon(d,...p),jd) }; } },
+];
+
+// ── DRAW WHEEL ──
+function drawWheel(data) {
+  const svg = document.getElementById('horoscope-wheel');
+  const cx = 150, cy = 150, rOuter = 138, rBand = 116, rInner = 95, rPlanet = 74;
+  svg.innerHTML = '';
+  const ns = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs, txt) => {
+    const e = document.createElementNS(ns, tag);
+    for (const [k,v] of Object.entries(attrs)) e.setAttribute(k,v);
+    if (txt !== undefined) e.textContent = txt;
+    return e;
+  };
+
+  // Defs — radial gradient background
+  const defs = el('defs', {});
+  const grad = el('radialGradient', { id:'bg-grad', cx:'50%', cy:'50%', r:'50%' });
+  grad.appendChild(el('stop', { offset:'0%', 'stop-color':'#eef2fb' }));
+  grad.appendChild(el('stop', { offset:'100%', 'stop-color':'#dde4f5' }));
+  defs.appendChild(grad);
+  svg.appendChild(defs);
+
+  svg.appendChild(el('circle', { cx, cy, r: rOuter, fill:'url(#bg-grad)', stroke:'#b0bcd8', 'stroke-width':'1.5' }));
+
+  // Sign sectors
+  for (let i = 0; i < 12; i++) {
+    const a1 = (i*30-90)*DEG, a2 = ((i+1)*30-90)*DEG;
+    const x1=cx+rBand*Math.cos(a1), y1=cy+rBand*Math.sin(a1);
+    const x2=cx+rOuter*Math.cos(a1), y2=cy+rOuter*Math.sin(a1);
+    const x3=cx+rOuter*Math.cos(a2), y3=cy+rOuter*Math.sin(a2);
+    const x4=cx+rBand*Math.cos(a2), y4=cy+rBand*Math.sin(a2);
+    svg.appendChild(el('path', {
+      d: `M ${x1} ${y1} L ${x2} ${y2} A ${rOuter} ${rOuter} 0 0 1 ${x3} ${y3} L ${x4} ${y4} A ${rBand} ${rBand} 0 0 0 ${x1} ${y1}`,
+      fill: SIGNS[i].color + '22', stroke:'#b8c4dc', 'stroke-width':'0.5'
+    }));
+    const ma = ((i+0.5)*30-90)*DEG, rs = (rBand+rOuter)/2;
+    svg.appendChild(el('text', {
+      x: cx+rs*Math.cos(ma), y: cy+rs*Math.sin(ma),
+      'text-anchor':'middle', 'dominant-baseline':'central',
+      fill: SIGNS[i].color, 'font-size':'13', 'font-weight':'bold'
+    }, SIGNS[i].symbol));
+  }
+
+  // Rings
+  svg.appendChild(el('circle', { cx, cy, r:rBand,  fill:'none', stroke:'#a8b8d8', 'stroke-width':'1.2' }));
+  svg.appendChild(el('circle', { cx, cy, r:rInner, fill:'#f0f4fc', stroke:'#b8c8e0', 'stroke-width':'1' }));
+
+  // Ticks
+  for (let i = 0; i < 360; i += 5) {
+    const a = (i-90)*DEG;
+    const r1 = i%30===0 ? rInner-12 : i%10===0 ? rInner-7 : rInner-3;
+    svg.appendChild(el('line', {
+      x1: cx+rInner*Math.cos(a), y1: cy+rInner*Math.sin(a),
+      x2: cx+r1*Math.cos(a),    y2: cy+r1*Math.sin(a),
+      stroke: i%30===0 ? '#6070a0' : '#b0bcd8',
+      'stroke-width': i%30===0 ? '1.2' : '0.6'
+    }));
+  }
+
+  // Sector dividers
+  for (let i = 0; i < 12; i++) {
+    const a = (i*30-90)*DEG;
+    svg.appendChild(el('line', {
+      x1: cx+rInner*Math.cos(a), y1: cy+rInner*Math.sin(a),
+      x2: cx+rBand*Math.cos(a),  y2: cy+rBand*Math.sin(a),
+      stroke:'#8898c0', 'stroke-width':'0.8'
+    }));
+  }
+
+  // Inner disc
+  svg.appendChild(el('circle', { cx, cy, r:20, fill:'#1e3a5f', stroke:'#2d5a8e', 'stroke-width':'1.5' }));
+  svg.appendChild(el('text', { x:cx, y:cy, 'text-anchor':'middle', 'dominant-baseline':'central', fill:'#f5c842', 'font-size':'18' }, '☉'));
+
+  // Planets
+  const placed = [];
+  data.forEach((p, idx) => {
+    if (!p) return;
+    const angle = (p.lon - 90)*DEG;
+
+    // Dot on ring
+    svg.appendChild(el('circle', {
+      cx: cx+rInner*Math.cos(angle), cy: cy+rInner*Math.sin(angle),
+      r:'3.5', fill: PLANETS[idx].color, stroke:'white', 'stroke-width':'1.2'
+    }));
+
+    // Dashed line
+    svg.appendChild(el('line', {
+      x1: cx+(rInner-4)*Math.cos(angle), y1: cy+(rInner-4)*Math.sin(angle),
+      x2: cx+(rPlanet+13)*Math.cos(angle), y2: cy+(rPlanet+13)*Math.sin(angle),
+      stroke: PLANETS[idx].color+'70', 'stroke-width':'0.8', 'stroke-dasharray':'2.5 2'
+    }));
+
+    let pa = angle;
+    placed.forEach(q => { if (Math.abs(q-pa) < 0.25) pa += 0.25; });
+    placed.push(pa);
+
+    // Planet symbol
+    svg.appendChild(el('text', {
+      x: cx+rPlanet*Math.cos(pa), y: cy+rPlanet*Math.sin(pa),
+      'text-anchor':'middle', 'dominant-baseline':'central',
+      fill: PLANETS[idx].color, 'font-size':'15', 'font-weight':'bold'
+    }, PLANETS[idx].symbol));
+  });
+
+  svg.appendChild(el('circle', { cx, cy, r:rOuter, fill:'none', stroke:'#8898c0', 'stroke-width':'1.5' }));
+}
+
+// ── RENDER LIST ──
+function renderList(data) {
+  const c = document.getElementById('planet-list');
+  c.innerHTML = '';
+  data.forEach((p, i) => {
+    if (!p) return;
+    const sign = getSign(p.lon);
+    const minStr = String(sign.min).padStart(2,'0');
+    const row = document.createElement('div');
+    row.className = 'planet-row';
+    row.style.animationDelay = (i*0.06) + 's';
+    row.innerHTML = `
+      <span class="planet-symbol" style="color:${PLANETS[i].color}">${PLANETS[i].symbol}</span>
+      <span class="planet-name">${PLANETS[i].name}</span>
+      <div class="planet-position">
+        <span class="sign-symbol" style="color:${sign.color}">${sign.symbol}</span>
+        <span class="sign-name">${sign.name}</span>
+        ${p.retrograde ? '<span class="retrograde">Rx</span>' : ''}
+      </div>
+      <span class="degrees">${sign.deg}°${minStr}'</span>
+    `;
+    c.appendChild(row);
+  });
+}
+
+// ── MAIN ──
+function updateAll() {
+  const now = new Date();
+  const jd = julianDate(now);
+  document.getElementById('current-date').textContent =
+    now.toLocaleDateString('pl-PL', { weekday:'long', year:'numeric', month:'long', day:'numeric',
+      hour:'2-digit', minute:'2-digit', timeZone:'UTC' }) + ' UTC';
+  const data = PLANETS.map(p => { try { return p.calc(jd); } catch(e) { return null; } });
+  renderList(data);
+  drawWheel(data);
+}
+
+updateAll();
+setInterval(updateAll, 600000);
+</script>
+</body>
+</html>
