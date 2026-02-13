@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&family=Lora:ital,wght@1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#f4f6fb;--white:#fff;--accent:#1e3a5f;--accent2:#2d5a8e;
+    --teal:#1a7a8a;--muted:#6070a0;--border:#dce4f4;--shadow:0 4px 32px rgba(30,58,95,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);font-family:'Raleway',sans-serif;display:flex;flex-direction:column;align-items:center;padding:16px 12px 28px;}
+
+  .widget{width:100%;max-width:720px;background:var(--white);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;border-top:4px solid var(--accent);margin-bottom:18px;}
+
+  /* Header */
+  .wh{background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  .wh-left{display:flex;align-items:center;gap:8px;}
+  .wh-title{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.92);}
+  .ctrl-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+  .cl{font-size:9px;color:rgba(255,255,255,.5);letter-spacing:1px;text-transform:uppercase;margin-right:2px;}
+  .btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;cursor:pointer;transition:background .15s;font-family:'Raleway',sans-serif;letter-spacing:.5px;}
+  .btn:hover{background:rgba(255,255,255,.28);}
+  .btn.active{background:rgba(255,255,255,.35);border-color:rgba(255,255,255,.6);}
+  .sep{width:1px;height:14px;background:rgba(255,255,255,.2);display:inline-block;margin:0 2px;}
+
+  /* Second row */
+  .wh2{background:rgba(10,28,60,.6);padding:8px 16px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.06);}
+
+  /* Canvas */
+  .canvas-wrap{background:radial-gradient(ellipse at center,#0d1b38 0%,#060d1f 60%,#020710 100%);display:flex;justify-content:center;padding:8px;}
+  canvas{display:block;border-radius:4px;}
+
+  /* Info bar */
+  .info-bar{background:#f8faff;border-top:1px solid var(--border);padding:9px 16px;display:flex;align-items:center;gap:8px;min-height:36px;flex-wrap:wrap;}
+  .isym{font-size:18px;line-height:1;}
+  .iname{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;}
+  .idot{color:#c0c8dc;}
+  .idetail{font-family:'Lora',serif;font-style:italic;font-size:11px;color:var(--teal);}
+  .ihint{margin-left:auto;font-size:10px;color:var(--muted);opacity:.7;}
+
+  /* Gallery */
+  .gallery{width:100%;max-width:720px;background:var(--white);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;border-top:4px solid var(--teal);}
+  .gh{background:linear-gradient(135deg,var(--teal) 0%,#1e5a6a 100%);padding:11px 16px;display:flex;align-items:center;gap:8px;}
+  .gh-title{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.92);}
+  .gallery-sub{padding:10px 16px 8px;font-family:'Lora',serif;font-style:italic;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);}
+  .gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);}
+  @media(max-width:560px){.gallery-grid{grid-template-columns:repeat(2,1fr);}}
+  .m-cell{padding:14px 10px 12px;display:flex;flex-direction:column;align-items:center;gap:5px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);transition:background .18s;}
+  .m-cell:hover{background:#f0f5ff;}
+  .m-cell:nth-child(4n){border-right:none;}
+  .m-cell:nth-last-child(-n+4){border-bottom:none;}
+  @media(max-width:560px){.m-cell:nth-child(4n){border-right:1px solid var(--border);}.m-cell:nth-child(2n){border-right:none;}.m-cell:nth-last-child(-n+4){border-bottom:1px solid var(--border);}.m-cell:nth-last-child(-n+2){border-bottom:none;}}
+  .m-cell canvas{border-radius:50%;}
+  .m-sym{font-size:14px;line-height:1;}
+  .m-name{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);}
+  .m-desc{font-family:'Lora',serif;font-style:italic;font-size:10px;color:var(--teal);}
+
+  footer{text-align:center;margin-top:14px;font-size:10px;color:var(--muted);opacity:.6;letter-spacing:.5px;}
+</style>
+</head>
+<body>
+
+<!-- SOLAR SYSTEM WIDGET -->
+<div class="widget">
+  <div class="wh">
+    <div class="wh-left">
+      <span style="font-size:15px;color:rgba(255,255,255,.85)">🪐</span>
+      <span class="wh-title">Układ Słoneczny</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="cl">Prędkość</span>
+      <button class="btn active" data-speed="30">¼×</button>
+      <button class="btn" data-speed="60">½×</button>
+      <button class="btn" data-speed="365">1×</button>
+      <button class="btn" data-speed="1825">5×</button>
+      <button class="btn" data-speed="3650">10×</button>
+      <button class="btn" data-speed="18250">50×</button>
+      <div class="sep"></div>
+      <button class="btn" id="pauseBtn" style="font-size:13px;padding:3px 10px">⏸</button>
+    </div>
+  </div>
+
+  <div class="wh2">
+    <span class="cl">Widok</span>
+    <button class="btn active" id="togOrbits">Orbity</button>
+    <button class="btn active" id="togTrails">Ogony</button>
+    <button class="btn active" id="togLabels">Nazwy</button>
+    <button class="btn active" id="togGrid">Siatka</button>
+    <div class="sep"></div>
+    <span class="cl">Długość ogona</span>
+    <button class="btn" data-trail="30">Krótki</button>
+    <button class="btn active" data-trail="90">Średni</button>
+    <button class="btn" data-trail="200">Długi</button>
+    <button class="btn" data-trail="600">Pełny</button>
+    <div class="sep"></div>
+    <button class="btn" id="resetBtn">↺ Reset</button>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="solar"></canvas>
+  </div>
+
+  <div class="info-bar">
+    <span class="isym" id="iSym">☉</span>
+    <span class="iname" id="iName">Najedź na planetę</span>
+    <span class="idot" id="iDot" style="display:none">·</span>
+    <span class="idetail" id="iDetail"></span>
+    <span class="ihint">Animacja w czasie rzeczywistym</span>
+  </div>
+</div>
+
+<!-- MANDALA GALLERY -->
+<div class="gallery">
+  <div class="gh">
+    <span style="font-size:15px;color:rgba(255,255,255,.85)">✦</span>
+    <span class="gh-title">Mandale Orbitalne</span>
+  </div>
+  <div class="gallery-sub">
+    Wzory geometryczne tworzone przez każdą planetę widzianą z Ziemi — geocentryczne ścieżki orbitalne na przestrzeni wielu lat.
+  </div>
+  <div class="gallery-grid" id="mandalaGrid"></div>
+</div>
+
+<footer>astrologiaewolucyjna.com · Prawdziwe okresy orbitalne</footer>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+//  SOLAR SYSTEM
+// ─────────────────────────────────────────────────────────────
+const SC  = document.getElementById('solar');
+const ctx = SC.getContext('2d');
+let W, H;
+
+function resize() {
+  const wrap = SC.parentElement;
+  const maxW = Math.min(wrap.clientWidth - 16, 700);
+  W = H = maxW;
+  SC.width = W; SC.height = H;
+  SC.style.width = W+'px'; SC.style.height = H+'px';
+  scaleOrbits();
+}
+
+const PLANETS = [
+  { name:'Merkury',symbol:'☿',period:87.97,  baseR:56,  r:0,size:3.8,color:'#a0a8b8'},
+  { name:'Wenus',  symbol:'♀',period:224.7,  baseR:94,  r:0,size:5.2,color:'#d4a843'},
+  { name:'Ziemia', symbol:'⊕',period:365.25, baseR:130, r:0,size:5.5,color:'#4a9edd'},
+  { name:'Mars',   symbol:'♂',period:686.97, baseR:168, r:0,size:4.4,color:'#c0512a'},
+  { name:'Jowisz', symbol:'♃',period:4332.6, baseR:222, r:0,size:9.5,color:'#c4924a'},
+  { name:'Saturn', symbol:'♄',period:10759,  baseR:264, r:0,size:8.0,color:'#d4b86a',rings:true},
+  { name:'Uran',   symbol:'⛢',period:30687,  baseR:298, r:0,size:6.5,color:'#7ecfd4'},
+  { name:'Neptun', symbol:'♆',period:60190,  baseR:328, r:0,size:6.2,color:'#3060d0'},
+];
+
+function scaleOrbits() {
+  const sc = Math.min(W,H) / 700;
+  PLANETS.forEach(p => { p.r = p.baseR * sc; });
+}
+
+PLANETS.forEach((p,i) => { p.angle = (i*137.5)%360; });
+
+const trails = PLANETS.map(()=>[]);
+let TRAIL_LEN = 90;
+let speedDays = 30, paused = false, lastTs = null;
+let showOrbits=true, showTrails=true, showLabels=true, showGrid=true;
+let hoveredIdx = null;
+
+// Speed buttons
+document.querySelectorAll('[data-speed]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    speedDays = parseInt(b.dataset.speed);
+    document.querySelectorAll('[data-speed]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+
+// Trail buttons
+document.querySelectorAll('[data-trail]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    TRAIL_LEN = parseInt(b.dataset.trail);
+    trails.forEach(t=>{ while(t.length > TRAIL_LEN*2) t.shift(); });
+    document.querySelectorAll('[data-trail]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+
+// Toggle buttons
+[['togOrbits',()=>showOrbits=!showOrbits],
+ ['togTrails',()=>showTrails=!showTrails],
+ ['togLabels',()=>showLabels=!showLabels],
+ ['togGrid',  ()=>showGrid  =!showGrid  ]].forEach(([id,fn])=>{
+  document.getElementById(id).addEventListener('click',function(){fn();this.classList.toggle('active');});
+});
+
+document.getElementById('pauseBtn').addEventListener('click',function(){
+  paused=!paused; this.textContent=paused?'▶':'⏸';
+});
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  PLANETS.forEach((p,i)=>{p.angle=(i*137.5)%360;});
+  trails.forEach(t=>t.length=0);
+});
+
+// Hover
+SC.addEventListener('mousemove', e=>{
+  const r=SC.getBoundingClientRect();
+  const scX=SC.width/r.width, scY=SC.height/r.height;
+  const mx=(e.clientX-r.left)*scX, my=(e.clientY-r.top)*scY;
+  hoveredIdx=null;
+  PLANETS.forEach((p,i)=>{
+    if(p._x && Math.hypot(mx-p._x,my-p._y)<Math.max(p.size*2.5,12)) hoveredIdx=i;
+  });
+  if(hoveredIdx!==null){
+    const p=PLANETS[hoveredIdx];
+    document.getElementById('iSym').textContent=p.symbol;
+    document.getElementById('iName').textContent=p.name;
+    document.getElementById('iDot').style.display='inline';
+    document.getElementById('iDetail').textContent=fmtPer(p.period);
+    SC.style.cursor='pointer';
+  } else {
+    document.getElementById('iSym').textContent='☉';
+    document.getElementById('iName').textContent='Najedź na planetę';
+    document.getElementById('iDot').style.display='none';
+    document.getElementById('iDetail').textContent='';
+    SC.style.cursor='default';
+  }
+});
+SC.addEventListener('mouseleave',()=>hoveredIdx=null);
+
+// Touch
+SC.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  SC.dispatchEvent(new MouseEvent('mousemove',{clientX:e.touches[0].clientX,clientY:e.touches[0].clientY}));
+},{passive:false});
+
+// Stars cache
+let starCache=null;
+function drawStars(t){
+  if(!starCache){
+    starCache=[]; const rng=mulberry32(42);
+    for(let i=0;i<140;i++) starCache.push({x:rng()*W,y:rng()*H,r:rng()*1.2+.3,a:rng()*.7+.3,tw:rng()});
+  }
+  starCache.forEach(s=>{
+    const a=s.a*(0.6+0.4*Math.sin(t*(0.5+s.tw)));
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${a})`; ctx.fill();
+  });
+}
+
+function drawSun(cx,cy,t){
+  const pulse=1+0.06*Math.sin(t*1.8);
+  const og=ctx.createRadialGradient(cx,cy,0,cx,cy,26*pulse);
+  og.addColorStop(0,'rgba(255,230,80,0)'); og.addColorStop(.4,'rgba(255,180,30,.1)'); og.addColorStop(1,'rgba(255,120,0,0)');
+  ctx.beginPath(); ctx.arc(cx,cy,26*pulse,0,Math.PI*2); ctx.fillStyle=og; ctx.fill();
+  const sg=ctx.createRadialGradient(cx-4,cy-4,2,cx,cy,13);
+  sg.addColorStop(0,'#fff5a0'); sg.addColorStop(.5,'#ffcc22'); sg.addColorStop(1,'#ff8800');
+  ctx.beginPath(); ctx.arc(cx,cy,13,0,Math.PI*2); ctx.fillStyle=sg; ctx.fill();
+  ctx.font='12px serif'; ctx.fillStyle='rgba(255,255,255,.85)'; ctx.textAlign='center';
+  ctx.fillText('☉',cx,cy+4);
+}
+
+function frame(ts){
+  if(!lastTs) lastTs=ts;
+  const dt=Math.min((ts-lastTs)/1000,0.05); lastTs=ts;
+  if(!paused) PLANETS.forEach(p=>{ p.angle=(p.angle+(dt*speedDays/p.period)*360)%360; });
+
+  const cx=W/2, cy=H/2;
+  ctx.clearRect(0,0,W,H);
+  const bg=ctx.createRadialGradient(cx,cy,0,cx,cy,W*.7);
+  bg.addColorStop(0,'#1a2845'); bg.addColorStop(.5,'#0c1628'); bg.addColorStop(1,'#020710');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  drawStars(ts/1000);
+
+  // Grid
+  if(showGrid){
+    for(let i=1;i<=8;i++){
+      ctx.beginPath(); ctx.arc(cx,cy,i*(W*.47/8),0,Math.PI*2);
+      ctx.strokeStyle='rgba(255,255,255,.035)'; ctx.lineWidth=.5; ctx.stroke();
+    }
+  }
+
+  // Orbits
+  if(showOrbits) PLANETS.forEach((p,i)=>{
+    ctx.beginPath(); ctx.arc(cx,cy,p.r,0,Math.PI*2);
+    ctx.strokeStyle=hoveredIdx===i?'rgba(255,255,255,.22)':'rgba(255,255,255,.08)';
+    ctx.lineWidth=hoveredIdx===i?1.2:.7; ctx.stroke();
+  });
+
+  // Update & draw trails
+  PLANETS.forEach((p,i)=>{
+    const a=(p.angle-90)*Math.PI/180;
+    trails[i].push({x:cx+p.r*Math.cos(a), y:cy+p.r*Math.sin(a)});
+    if(trails[i].length>TRAIL_LEN*2) trails[i].shift();
+  });
+  if(showTrails) PLANETS.forEach((p,i)=>{
+    const t=trails[i]; if(t.length<2) return;
+    const col=hRgb(p.color);
+    for(let j=1;j<t.length;j++){
+      ctx.beginPath(); ctx.moveTo(t[j-1].x,t[j-1].y); ctx.lineTo(t[j].x,t[j].y);
+      ctx.strokeStyle=`rgba(${col},${(j/t.length)*(hoveredIdx===i?.75:.5)})`;
+      ctx.lineWidth=hoveredIdx===i?2.2:1.4; ctx.stroke();
+    }
+  });
+
+  // Planets
+  PLANETS.forEach((p,i)=>{
+    const a=(p.angle-90)*Math.PI/180;
+    const px=cx+p.r*Math.cos(a), py=cy+p.r*Math.sin(a);
+    p._x=px; p._y=py;
+    const isH=hoveredIdx===i, s=isH?p.size*1.4:p.size;
+    if(p.rings){
+      ctx.save(); ctx.translate(px,py); ctx.rotate(.4); ctx.scale(1,.32);
+      ctx.beginPath(); ctx.arc(0,0,s*2.3,0,Math.PI*2);
+      ctx.strokeStyle=isH?'rgba(212,184,106,.8)':'rgba(212,184,106,.45)';
+      ctx.lineWidth=s*.5; ctx.stroke(); ctx.restore();
+    }
+    const g=ctx.createRadialGradient(px,py,0,px,py,s*3);
+    g.addColorStop(0,p.color+'cc'); g.addColorStop(.4,p.color+'33'); g.addColorStop(1,p.color+'00');
+    ctx.beginPath(); ctx.arc(px,py,s*3,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+    const b=ctx.createRadialGradient(px-s*.3,py-s*.3,s*.05,px,py,s);
+    b.addColorStop(0,lighten(p.color,45)); b.addColorStop(1,darken(p.color,35));
+    ctx.beginPath(); ctx.arc(px,py,s,0,Math.PI*2); ctx.fillStyle=b; ctx.fill();
+    if(showLabels&&isH){
+      ctx.font="bold 11px 'Raleway',sans-serif"; ctx.fillStyle='#fff'; ctx.textAlign='center';
+      ctx.fillText(p.symbol+' '+p.name,px,py-s-7);
+    }
+  });
+
+  drawSun(cx,cy,ts/1000);
+  requestAnimationFrame(frame);
+}
+
+// ─────────────────────────────────────────────────────────────
+//  MANDALA GALLERY
+// ─────────────────────────────────────────────────────────────
+const MANDALA_PLANETS = [
+  {name:'Merkury',sym:'☿',color:'#a0a8b8',period:87.97,  years:10,  desc:'petla × 4'},
+  {name:'Wenus',  sym:'♀',color:'#d4a843',period:224.7,  years:8,   desc:'5 płatków'},
+  {name:'Mars',   sym:'♂',color:'#c0512a',period:686.97, years:16,  desc:'spirografy'},
+  {name:'Jowisz', sym:'♃',color:'#c4924a',period:4332.6, years:83,  desc:'7 pętli'},
+  {name:'Saturn', sym:'♄',color:'#d4b86a',period:10759,  years:120, desc:'spirala'},
+  {name:'Uran',   sym:'⛢',color:'#7ecfd4',period:30687,  years:250, desc:'spirala'},
+  {name:'Neptun', sym:'♆',color:'#3060d0',period:60190,  years:400, desc:'spirala'},
+  {name:'Pluton', sym:'♇',color:'#9a7a9a',period:90530,  years:500, desc:'spirala'},
+];
+
+const MS = 138; // mandala canvas size
+
+function drawMandala(mc, planet) {
+  const c  = mc.getContext('2d');
+  const S  = mc.width;
+  const cx = S/2, cy = S/2;
+
+  c.fillStyle='#060d1f';
+  c.fillRect(0,0,S,S);
+
+  // Clip to circle
+  c.save();
+  c.beginPath(); c.arc(cx,cy,S/2-1,0,Math.PI*2); c.clip();
+
+  // BG
+  const bg=c.createRadialGradient(cx,cy,0,cx,cy,S/2);
+  bg.addColorStop(0,'#172040'); bg.addColorStop(1,'#020810');
+  c.fillStyle=bg; c.fillRect(0,0,S,S);
+
+  // Total steps — more years = more complex pattern
+  const steps   = 8000;
+  const totalD  = planet.years * 365.25;
+  const RE = S * 0.40; // Earth orbit radius on canvas
+  const earthP  = 365.25;
+  const col = hRgb(planet.color);
+
+  // Faint orbit rings
+  c.beginPath(); c.arc(cx,cy,RE,0,Math.PI*2);
+  c.strokeStyle='rgba(255,255,255,.07)'; c.lineWidth=.5; c.stroke();
+
+  // Draw geocentric path (planet as seen from Earth)
+  // = trace the relative position vector (planet - earth) over time
+  const pts=[];
+  for(let i=0;i<=steps;i++){
+    const t  = (i/steps)*totalD;
+    const aE = (t/earthP)*Math.PI*2;
+    const aP = (t/planet.period)*Math.PI*2;
+    // Heliocentric x,y
+    const ex = Math.cos(aE), ey = Math.sin(aE);
+    const px = Math.cos(aP), py = Math.sin(aP);
+    // Geocentric (planet - earth), normalise by max possible dist
+    // Use fixed visual scale so pattern fills the canvas nicely
+    const scale = planet.period < 365.25 ? RE*0.62 : RE*0.82;
+    const rx = cx + (px-ex)*scale*0.55;
+    const ry = cy + (py-ey)*scale*0.55;
+    pts.push({x:rx,y:ry});
+  }
+
+  // Draw path with fade-in alpha
+  c.lineWidth=.7;
+  for(let i=1;i<pts.length;i++){
+    // cycle colour alpha to show layering
+    const alpha = 0.25 + 0.35*(Math.sin(i/pts.length*Math.PI));
+    c.beginPath();
+    c.moveTo(pts[i-1].x,pts[i-1].y);
+    c.lineTo(pts[i].x,  pts[i].y);
+    c.strokeStyle=`rgba(${col},${alpha})`;
+    c.stroke();
+  }
+
+  // Sun dot in centre
+  const sg=c.createRadialGradient(cx,cy,0,cx,cy,S*.055);
+  sg.addColorStop(0,'#fff5a0'); sg.addColorStop(.5,'#ffcc22'); sg.addColorStop(1,'#ff880000');
+  c.beginPath(); c.arc(cx,cy,S*.042,0,Math.PI*2); c.fillStyle=sg; c.fill();
+
+  c.restore();
+}
+
+function buildGallery(){
+  const grid=document.getElementById('mandalaGrid');
+  grid.innerHTML='';
+  MANDALA_PLANETS.forEach(planet=>{
+    const cell=document.createElement('div'); cell.className='m-cell';
+    const mc=document.createElement('canvas'); mc.width=MS; mc.height=MS;
+    mc.style.width=MS+'px'; mc.style.height=MS+'px';
+    drawMandala(mc,planet);
+    const sym=document.createElement('div');  sym.className='m-sym';  sym.textContent=planet.sym;
+    const nm =document.createElement('div');  nm.className='m-name';  nm.textContent=planet.name;
+    const dc =document.createElement('div');  dc.className='m-desc';  dc.textContent=planet.desc;
+    cell.append(mc,sym,nm,dc);
+    grid.appendChild(cell);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────────────────────────
+function fmtPer(d){if(d<365)return`Okres: ${Math.round(d)} dni`;const y=d/365.25;return y<10?`Okres: ${y.toFixed(1)} lat`:`Okres: ${Math.round(y)} lat`;}
+function hRgb(h){return`${parseInt(h.slice(1,3),16)},${parseInt(h.slice(3,5),16)},${parseInt(h.slice(5,7),16)}`;}
+function lighten(h,a){return`rgb(${Math.min(255,parseInt(h.slice(1,3),16)+a)},${Math.min(255,parseInt(h.slice(3,5),16)+a)},${Math.min(255,parseInt(h.slice(5,7),16)+a)})`;}
+function darken(h,a){return`rgb(${Math.max(0,parseInt(h.slice(1,3),16)-a)},${Math.max(0,parseInt(h.slice(3,5),16)-a)},${Math.max(0,parseInt(h.slice(5,7),16)-a)})`;}
+function mulberry32(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+// ─────────────────────────────────────────────────────────────
+resize();
+buildGallery();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
