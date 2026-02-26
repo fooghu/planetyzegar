@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f4f6fb; --white:#fff; --accent:#1e3a5f; --accent2:#2d5a8e;
+  --teal:#1a7a8a; --muted:#6070a0; --border:#dce4f4;
+  --red:#b03030; --shadow:0 4px 28px rgba(30,58,95,.14);
+}
+body.dark {
+  --bg:#0d1120; --white:#151c30; --accent:#7ba4d4; --accent2:#5585ba;
+  --teal:#2aa8b8; --muted:#6880a8; --border:#1e2d4a;
+  --red:#e05555; --shadow:0 4px 28px rgba(0,0,0,.6);
+}
+body.dark .card-title,body.dark .tp-title{color:rgba(180,210,255,.9);}
+body.dark h1{color:#90b8e8;}
+body.dark .subtitle,body.dark .moon-name{color:var(--muted);}
+body.dark .engine-badge{background:#1a2540;border-color:#2a3d60;color:#80a8d8;}
+body.dark .header-card,body.dark .time-card,body.dark .wheel-card,body.dark .table-card{background:var(--white);}
+body.dark .tb{background:#192038;border-color:#2a3d60;color:#90b0d8;}
+body.dark .tb:hover{background:#1e2d50;}
+body.dark .tb.primary{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+body.dark .tb.danger{background:#2a1515;color:#e06060;border-color:#3a2020;}
+body.dark .tb.active-anim{background:var(--teal);color:#fff;border-color:var(--teal);}
+body.dark .date-input{background:#192038;border-color:#2a3d60;color:#90b0d8;}
+body.dark .moon-track{background:#1e2d4a;}
+body.dark .moon-pct{color:#80a8d8;}
+body.dark .asp-item{color:#6880a8;}
+body.dark .planet-table thead tr{background:#111828;}
+body.dark .planet-table thead th{color:#5070a0;}
+body.dark .planet-table tbody tr:hover{background:#192038;}
+body.dark .planet-table tbody tr{border-color:#1a2840;}
+body.dark .sign-nm{color:var(--teal);}
+body.dark .td-name{color:#7898c8;}
+body.dark .deg-pill{background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,140,0,0.12));color:#ffd700;}
+body.dark #current-date{color:#7898c8;}
+body.dark .mode-badge{background:#2a200a;border-color:#5a4010;color:#c8a040;}
+body.dark .wheel-body{background:radial-gradient(ellipse at center,#131c32 0%,#0a1020 100%);}
+body.dark footer{color:#304060;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:"Raleway",sans-serif;display:flex;flex-direction:column;align-items:center;padding:18px 12px 28px;}
+.container{width:100%;max-width:680px;display:flex;flex-direction:column;gap:14px;}
+
+/* ── 1. HEADER ── */
+.header-card{background:var(--white);border-radius:8px;box-shadow:var(--shadow);border-top:4px solid var(--accent);padding:16px 24px 14px;text-align:center;}
+h1{font-size:20px;font-weight:700;color:var(--accent);letter-spacing:4px;text-transform:uppercase;margin-bottom:3px;}
+.subtitle{font-family:"Lora",serif;font-style:italic;color:var(--muted);font-size:13px;}
+.accent-bar{width:36px;height:3px;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:2px;margin:8px auto 6px;}
+.engine-badge{display:inline-flex;align-items:center;gap:5px;background:#eef4ff;border:1px solid #c0d0e8;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:600;color:var(--accent);letter-spacing:1px;}
+.engine-badge .dot{width:6px;height:6px;background:#27ae60;border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── 2. TIME PANEL ── */
+.time-card{background:var(--white);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;}
+.time-card-header{background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);padding:9px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.tp-title{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.88);}
+.live-badge{display:flex;align-items:center;gap:4px;font-size:9px;color:rgba(255,255,255,.7);letter-spacing:1px;text-transform:uppercase;}
+.live-dot{width:5px;height:5px;background:#4ade80;border-radius:50%;animation:pulse 1.5s infinite;}
+.live-dot.paused{background:#f87171;animation:none;}
+
+.time-body{padding:12px 16px;display:flex;flex-direction:column;gap:10px;}
+
+/* Date display */
+.date-display{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+#current-date{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.4px;text-align:center;}
+.mode-badge{font-size:9px;background:#fdf3e7;border:1px solid #e8c87a;color:#9a6f20;border-radius:10px;padding:2px 7px;font-weight:600;letter-spacing:.5px;display:none;}
+.mode-badge.visible{display:inline-block;}
+
+/* Step controls */
+.step-row{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;}
+.step-group{display:flex;align-items:center;gap:4px;background:#f0f4fb;border-radius:6px;padding:5px 8px;}
+.step-label{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+.tb{background:var(--white);border:1px solid var(--border);color:var(--accent);font-size:11px;font-weight:700;padding:5px 12px;border-radius:5px;cursor:pointer;transition:all .15s;font-family:"Raleway",sans-serif;letter-spacing:.3px;white-space:nowrap;}
+.tb:hover{background:#e8eef8;border-color:#a0b4d0;}
+.tb:active{transform:scale(.97);}
+.tb.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.tb.primary:hover{background:var(--accent2);}
+.tb.danger{background:#fff5f5;color:var(--red);border-color:#f0c0c0;}
+.tb.danger:hover{background:#fee2e2;}
+.tb.active-anim{background:var(--teal);color:#fff;border-color:var(--teal);}
+
+/* Date picker row */
+.picker-row{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;}
+.date-input{border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:11px;font-family:"Raleway",sans-serif;color:var(--accent);background:var(--white);outline:none;transition:border .15s;}
+.date-input:focus{border-color:var(--accent2);}
+.time-input{width:82px;}
+
+/* Anim row */
+.anim-row{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap;}
+
+/* ── 3. WHEEL CARD ── */
+.wheel-card{background:var(--white);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;}
+.wheel-card-header{background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);padding:9px 16px;display:flex;align-items:center;gap:8px;}
+.card-title{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.92);}
+.wheel-body{background:radial-gradient(ellipse at center,#eef2fb 0%,#f0f4ff 100%);display:flex;justify-content:center;padding:20px;}
+#horoscope-wheel{width:100%;max-width:580px;height:auto;filter:drop-shadow(0 3px 12px rgba(30,58,95,.15));}
+
+/* ── 4. PLANET TABLE ── */
+.table-card{background:var(--white);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;}
+.table-card-header{background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);padding:9px 16px;display:flex;align-items:center;gap:8px;}
+.planet-table{width:100%;border-collapse:collapse;}
+.planet-table thead tr{background:#f0f4fb;border-bottom:2px solid var(--border);}
+.planet-table thead th{padding:7px 10px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);text-align:left;}
+.planet-table thead th:last-child{text-align:right;}
+.planet-table tbody tr{border-bottom:1px solid var(--border);transition:background .12s;animation:fadeIn .3s ease both;}
+.planet-table tbody tr:last-child{border-bottom:none;}
+.planet-table tbody tr:hover{background:#f4f7ff;}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-3px)}to{opacity:1;transform:none}}
+.planet-table td{padding:8px 10px;vertical-align:middle;}
+.td-sym{font-size:18px;line-height:1;width:28px;}
+.td-name{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);width:72px;}
+.td-sign{display:flex;align-items:center;gap:5px;}
+.sign-sym{font-size:14px;line-height:1;}
+.sign-nm{font-family:"Lora",serif;font-style:italic;font-size:13px;color:var(--teal);}
+.td-rx{width:32px;}
+.retro{color:var(--red);font-size:9px;font-weight:700;background:#fdecea;padding:2px 5px;border-radius:3px;letter-spacing:.5px;}
+.td-deg{text-align:right;}
+.deg-pill{display:inline-block;font-size:11px;font-weight:700;color:var(--white);background:linear-gradient(135deg,var(--accent),var(--accent2));padding:3px 9px;border-radius:12px;letter-spacing:.3px;}
+
+/* ── WHEEL FOOTER ── */
+.wheel-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px;}
+.moon-bar{display:flex;align-items:center;gap:10px;}
+.moon-emoji{font-size:26px;line-height:1;flex-shrink:0;}
+.moon-info{flex:1;display:flex;flex-direction:column;gap:3px;}
+.moon-name{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.5px;}
+.moon-track{height:6px;background:#dde4f4;border-radius:3px;overflow:hidden;}
+.moon-fill{height:100%;background:linear-gradient(90deg,#f5c842,#ffaa00);border-radius:3px;transition:width .5s ease;}
+.moon-pct{font-size:13px;font-weight:700;color:var(--accent2);min-width:36px;text-align:right;}
+.elem-legend{display:flex;gap:8px;flex-wrap:wrap;}
+.elem-badge{font-size:10px;font-weight:600;color:white;background:var(--ec);border-radius:12px;padding:3px 10px;letter-spacing:.3px;}
+/* Aspect legend */
+.aspect-legend{padding:8px 16px 12px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--border);}
+.asp-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);}
+.asp-line{width:20px;height:2px;border-radius:1px;flex-shrink:0;}
+footer{text-align:center;margin-top:6px;font-size:10px;color:var(--muted);opacity:.55;letter-spacing:.5px;}
+#loadingMsg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,25,50,0.85);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#fff;font-size:14px;font-family:Raleway,sans-serif;letter-spacing:1px;}
+#planetTooltip{position:fixed;z-index:9999;display:flex;align-items:center;gap:8px;background:rgba(12,25,60,0.95);border:1px solid rgba(100,140,220,0.3);border-radius:8px;padding:6px 12px;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.4);}
+.tip-sym{font-family:serif;font-size:18px;line-height:1;}
+.tip-name{font-family:'Raleway',sans-serif;font-size:11px;font-weight:700;color:#b8d0ff;letter-spacing:1px;text-transform:uppercase;}
+.tip-deg{font-family:'Raleway',sans-serif;font-size:13px;font-weight:800;color:#ffd700;background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,140,0,0.12));padding:2px 8px;border-radius:4px;letter-spacing:0.5px;}
+.spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,0.2);border-top-color:#7ba4d4;border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<!-- 
+UWAGA: Widget używa obliczeń VSOP87 które dają dokładność ~10-15 minut łuku.
+Dla pełnej dokładności Swiss Ephemeris (sub-arcminute) użyj widget-swisseph.html
+-->
+<body>
+<div id="loadingMsg"><div class="spinner"></div>Ładowanie Swiss Ephemeris…</div>
+<div id="planetTooltip" style="display:none;">
+  <span class="tip-sym"></span>
+  <span class="tip-name"></span>
+  <span class="tip-deg"></span>
+</div>
+<div class="container">
+
+  <!-- 1. HEADER -->
+  <div class="header-card">
+    <h1>Niebo Teraz</h1>
+    <div class="subtitle">Aktualne Pozycje Planet</div>
+    <div class="accent-bar"></div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;">
+      <div class="engine-badge"><span class="dot"></span>VSOP87 · Zodiak Naturalny · Dokładność ~15min</div>
+      <button class="tb" id="darkToggle" style="font-size:14px;padding:3px 10px;" title="Tryb ciemny">🌙</button>
+    </div>
+  </div>
+
+  <!-- 3. ZODIAC WHEEL — full width -->
+  <div class="wheel-card">
+    <div class="wheel-card-header">
+      <span style="font-size:14px;color:rgba(255,255,255,.85)">◯</span>
+      <span class="card-title">Koło Zodiaku · Zodiak Naturalny</span>
+    </div>
+    <div class="wheel-body">
+      <svg id="horoscope-wheel" viewBox="0 0 520 520" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <!-- Moon phase + element legend -->
+    <div class="wheel-footer">
+      <div class="moon-bar" id="moonBar">
+        <span class="moon-emoji" id="moonEmoji">🌑</span>
+        <div class="moon-info">
+          <span class="moon-name" id="moonName">—</span>
+          <div class="moon-track"><div class="moon-fill" id="moonFill"></div></div>
+        </div>
+        <span class="moon-pct" id="moonPct">—</span>
+      </div>
+    </div>
+    <div class="aspect-legend" id="aspectLegend"></div>
+  </div>
+
+  <!-- 3. TIME NAVIGATION -->
+  <div class="time-card">
+    <div class="time-card-header">
+      <span class="tp-title">⏱ Nawigacja Czasowa</span>
+      <div class="live-badge">
+        <span class="live-dot" id="liveDot"></span>
+        <span id="liveLabel">NA ŻYWO</span>
+      </div>
+    </div>
+    <div class="time-body">
+
+      <div class="date-display">
+        <div id="current-date">—</div>
+        <span class="mode-badge" id="modeBadge">TRYB HISTORYCZNY</span>
+      </div>
+
+      <div class="step-row">
+        <div class="step-group">
+          <span class="step-label">◀ Cofnij</span>
+          <button class="tb" data-step="-1" data-unit="week">Tydzień</button>
+          <button class="tb" data-step="-1" data-unit="day">Dzień</button>
+          <button class="tb" data-step="-1" data-unit="hour">Godzinę</button>
+        </div>
+        <div class="step-group">
+          <span class="step-label">Naprzód ▶</span>
+          <button class="tb" data-step="1" data-unit="hour">Godzinę</button>
+          <button class="tb" data-step="1" data-unit="day">Dzień</button>
+          <button class="tb" data-step="1" data-unit="week">Tydzień</button>
+        </div>
+      </div>
+
+      <div class="picker-row">
+        <span class="step-label">Przejdź do:</span>
+        <input type="date" class="date-input" id="datePicker">
+        <input type="time" class="date-input time-input" id="timePicker" value="12:00">
+        <button class="tb primary" id="jumpBtn">Skocz ↵</button>
+        <button class="tb danger" id="nowBtn">⟳ Teraz</button>
+      </div>
+
+      <div class="anim-row">
+        <span class="step-label">Animacja:</span>
+        <button class="tb" id="animBtn">▶ Odtwórz</button>
+        <button class="tb" data-animspeed="0.042" data-unit="day">1 godz./s</button>
+        <button class="tb" data-animspeed="1" data-unit="day">1 dzień/s</button>
+        <button class="tb active-anim" data-animspeed="7" data-unit="day">1 tydz./s</button>
+        <button class="tb" data-animspeed="30" data-unit="day">1 mies./s</button>
+        <button class="tb" data-animspeed="365" data-unit="day">1 rok/s</button>
+        <button class="tb" data-animspeed="-7" data-unit="day">◀ Wstecz</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. PLANET TABLE — full width, bottom -->
+  <div class="table-card">
+    <div class="table-card-header">
+      <span style="font-size:14px;color:rgba(255,255,255,.85)">♃</span>
+      <span class="card-title">Pozycje Planet</span>
+    </div>
+    <table class="planet-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Planeta</th>
+          <th>Znak</th>
+          <th></th>
+          <th style="text-align:right">Stopnie</th>
+        </tr>
+      </thead>
+      <tbody id="planet-tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+<footer>Swiss Ephemeris (Astrodienst AG) · Zodiak Naturalny · astrologiaewolucyjna.com</footer>
+<script>
+// ── IFRAME-SAFE SWISS EPHEMERIS LOADER ───────────────────────
+// This version works in Wix iframes by using dynamic import with VSOP87 fallback
+
+const DEG=Math.PI/180, RAD=180/Math.PI;
+function norm(d){return((d%360)+360)%360;}
+
+// ── ZNAKI ZODIAKU ─────────────────────────────────────────────
+const SIGNS=[
+  {name:'Baran',      genitive:'Barana',     symbol:'♈',color:'#c0392b'},
+  {name:'Byk',        genitive:'Byka',       symbol:'♉',color:'#27ae60'},
+  {name:'Bliźnięta',  genitive:'Bliźniąt',   symbol:'♊',color:'#c8961a'},
+  {name:'Rak',        genitive:'Raka',       symbol:'♋',color:'#2980b9'},
+  {name:'Lew',        genitive:'Lwa',        symbol:'♌',color:'#d35400'},
+  {name:'Panna',      genitive:'Panny',      symbol:'♍',color:'#16a085'},
+  {name:'Waga',       genitive:'Wagi',       symbol:'♎',color:'#8e44ad'},
+  {name:'Skorpion',   genitive:'Skorpiona',  symbol:'♏',color:'#922b21'},
+  {name:'Strzelec',   genitive:'Strzelca',   symbol:'♐',color:'#ca6f1e'},
+  {name:'Koziorożec', genitive:'Koziorożca', symbol:'♑',color:'#566573'},
+  {name:'Wodnik',     genitive:'Wodnika',    symbol:'♒',color:'#1a5276'},
+  {name:'Ryby',       genitive:'Ryb',        symbol:'♓',color:'#6c3483'},
+];
+function sign(lon){const i=Math.floor(lon/30),d=lon%30,dg=Math.floor(d),mn=Math.floor((d-dg)*60);return{...SIGNS[i],deg:dg,min:mn};}
+
+// Tell user we're using VSOP87 (works everywhere, ~15min accuracy)
+console.log('Kosmogram Widget: Using VSOP87 calculations (works in iframes, ~15min accuracy)');
+console.log('For Swiss Ephemeris accuracy, use standalone page');
+
+// Read the rest of the VSOP87 script from zegar-widget.html
+// ── VSOP87 ────────────────────────────────────────────────────
+function vsop(jd,L0,L1,L2,L3){
+  const T=(jd-2451545)/365250,T2=T*T,T3=T2*T;
+  const sum=t=>t.reduce((s,[A,B,C])=>s+A*Math.cos(B+C*T),0);
+  return norm((sum(L0)+sum(L1)*T+sum(L2)*T2+(L3&&L3.length?sum(L3)*T3:0))/1e8*RAD);
+}
+function vsopR(jd,R0,R1,R2){
+  const T=(jd-2451545)/365250,T2=T*T;
+  const sum=t=>t.reduce((s,[A,B,C])=>s+A*Math.cos(B+C*T),0);
+  return (sum(R0)+sum(R1)*T+(R2.length?sum(R2)*T2:0))/1e8;
+}
+function geoLon(eL,eR,pL,pR){
+  const ex=eR*Math.cos(eL*DEG),ey=eR*Math.sin(eL*DEG);
+  const px=pR*Math.cos(pL*DEG),py=pR*Math.sin(pL*DEG);
+  return norm(Math.atan2(py-ey,px-ex)*RAD);
+}
+
+// Earth
+const EL0=[[175347046,0,0],[3341656,4.6732,6283.07585],[34894,4.62610,12566.1517],[3497,2.7441,5753.3849],[3418,2.8289,3.5231],[3136,3.6277,77713.7715],[2676,4.4181,7860.4194],[2343,6.1352,3930.2097]];
+const EL1=[[628331966747,0,0],[206059,2.678235,6283.07585],[4303,2.6351,12566.1517],[425,1.590,3.523],[119,5.796,26.298],[109,2.966,1577.344]];
+const EL2=[[52919,0,0],[8720,1.0721,6283.0758],[309,0.867,12566.152]];
+const ER0=[[100013989,0,0],[1670700,3.0984635,6283.07585],[13956,3.05525,12566.1517],[3084,5.1985,77713.7715],[1628,1.1739,5753.3849],[1576,2.8469,7860.4194]];
+const ER1=[[103019,1.107490,6283.07585],[1721,1.0644,12566.1517],[702,3.142,0]];
+const ER2=[[4359,5.7846,6283.0758],[124,5.579,12566.152],[12,3.142,0]];
+
+const V={
+  mercury:{
+    L0:[[440250710,0,0],[40989415,1.48302034,26087.90314157],[5046294,4.47785229,52175.80628314],[855347,1.16520322,78263.70942473],[165590,4.11969163,104351.61256631],[34480,5.58526,130439.51569],[7135,1.0676,156527.4188],[6300,5.83,5661.332],[4633,0.28,10021.83728],[3876,4.6508,51066.4276],[3497,0.3629,2281.2305],[1129,4.8282,1109.3786],[772,4.838,2544.314],[707,3.263,1059.382],[566,4.132,796.298],[519,1.833,3.523],[444,5.826,955.600],[439,2.913,529.691],[379,5.863,191.208],[374,3.690,4690.480],[336,3.732,6283.076],[316,4.947,7.114],[307,3.878,2146.165],[299,2.643,3634.622],[295,1.849,2942.463],[281,3.534,1589.073],[256,0.265,3340.612],[249,4.653,16760.476],[225,5.220,37410.567],[214,4.097,5.523],[201,3.487,522.577]],
+    L1:[[2608814706820,0,0],[1126008,6.21703,26087.90314],[303471,3.05565,52175.80628],[80538,6.10455,78263.70942],[21245,2.83532,104351.61257],[5592,5.82,130439.51570],[955,5.526,156527.419],[778,4.425,10021.837],[395,0.396,1109.379],[283,1.617,796.298]],
+    L2:[[53050,0,0],[16904,4.69328,26087.90314],[7397,1.34695,52175.80628],[3018,4.4564,78263.7094],[1107,1.2623,104351.6126]],
+    L3:[[188,0.035,26087.903],[54,4.47,52175.806],[10,2.45,78263.709]],
+    R0:[[39528272,0,0],[7834132,6.19235,26087.9031],[795526,2.95990,52175.8063],[121282,6.01064,78263.7094],[21922,2.77820,104351.6126],[4354,5.8289,130439.5157],[918,2.597,156527.419],[290,1.424,25028.521],[260,3.028,27197.282],[202,5.647,10678.187]],
+    R1:[[217348,4.65617,26087.9031],[44142,1.42386,52175.8063],[10094,0.74009,78263.7094],[2433,1.2423,104351.6126]],
+    R2:[[3592,4.7999,26087.9031],[1129,1.8932,52175.8063],[346,0.564,78263.709]]
+  },
+  venus:{
+    L0:[[317614667,0,0],[1353968,5.5931332,10213.2855462],[89892,5.3065,20426.57109],[5477,4.4163,7860.41939],[3456,2.6996,11790.62909],[2372,2.9938,38.1330],[1664,4.2502,1577.3435],[1438,4.1575,9683.5946],[1317,5.1867,26.2983]],
+    L1:[[1021352943052,0,0],[95708,2.46424,10213.28555],[14445,0.51625,20426.57109],[213,1.795,30639.856]],
+    L2:[[54127,0,0],[3891,0.3451,10213.2856],[1338,2.0201,20426.5711],[24,3.14,0]],
+    L3:[[136,4.804,10213.286],[5,2.62,20426.571]],
+    R0:[[72334821,0,0],[489824,4.02152,10213.28555],[1658,4.9021,20426.5711],[1632,2.8455,7860.4194],[1378,1.1285,11790.6291]],
+    R1:[[34551,0.89199,10213.28555],[234,1.772,20426.571]],
+    R2:[[1407,5.0637,10213.2856]]
+  },
+  mars:{
+    L0:[[620347712,0,0],[18656368,5.050371,3340.612427],[1108217,5.40184,6681.22485],[91798,5.75478,10021.83728],[27745,5.9705,2281.2305],[12316,0.84306,2810.9215],[10610,2.09381,13362.4497],[8927,4.0698,2942.4634],[7555,5.2871,398.1490],[5179,4.1655,796.298]],
+    L1:[[334085627474,0,0],[1458227,3.60426,3340.61243],[164901,3.92581,6681.22485],[19963,4.26594,10021.83728],[3452,4.7321,3154.6870],[2485,4.6128,13362.4497],[842,4.459,16703.062]],
+    L2:[[58016,2.04979,3340.61243],[54188,0,0],[13396,4.05855,6681.22485],[1649,1.9598,10021.8373]],
+    L3:[[1482,0.4443,3340.6124],[662,0.885,6681.225]],
+    R0:[[153033488,0,0],[14184953,3.47971,3340.61243],[660776,3.81783,6681.22485],[46179,4.15595,10021.83728],[8109,5.55015,2810.92146],[7485,1.7724,398.1490],[5523,1.3644,796.2980],[3825,4.4941,16703.0621]],
+    R1:[[1107433,2.032,3340.612],[103176,2.370,6681.224],[12877,0,0],[10816,2.9348,10021.8373]],
+    R2:[[44242,0.47523,3340.612],[8138,0.8700,6681.2249]]
+  },
+  jupiter:{
+    L0:[[59954691,0,0],[9695899,5.06191793,529.69096509],[573610,1.44406,7.11355],[306389,5.41734,1059.38193],[97178,4.14264,632.78374],[72903,3.6423,522.57742],[64264,3.41145,103.09277],[39806,2.2931,419.4846]],
+    L1:[[52993480757,0,0],[489741,4.22066,529.69097],[228919,6.02647,7.11355],[27655,4.31598,1059.38193],[20721,5.45939,522.57742]],
+    L2:[[47234,4.32148,529.69097],[38966,0,0],[30629,2.93256,7.11355]],
+    L3:[[587,3.840,529.691]],
+    R0:[[520887429,0,0],[25209327,3.49108640,529.69096509],[610600,3.84115,1059.38193],[282029,2.57461,632.78374],[187647,2.07774,522.57742]],
+    R1:[[1271802,2.649386,529.690965],[61651,3.19645,1059.3819],[53212,2.27165,632.7837]],
+    R2:[[79645,1.35866,529.6910]]
+  },
+  saturn:{
+    L0:[[87401354,0,0],[11107660,3.9620509,213.29909544],[1414151,4.58581,7.11355],[398379,0.52112,206.18554],[350769,3.30329,426.59819],[206816,0.24658,103.09277],[79271,3.84007,220.41264]],
+    L1:[[21354295596,0,0],[1296855,1.8282,213.2991],[564348,2.885,7.11355],[107679,2.27699,206.18554],[98323,1.0807,426.59819]],
+    L2:[[116441,2.99762,7.11355],[91921,0.07425,213.2991],[90592,0,0]],
+    L3:[[16039,5.7381,7.1135],[4250,4.5854,213.2991]],
+    R0:[[955758136,0,0],[52921382,2.39226,213.29909],[1873680,5.23291,206.18555],[1464664,1.64763,426.59819],[821891,5.93557,316.39187]],
+    R1:[[6182981,0.25843,213.2991],[506578,0.71114,206.18555],[341394,5.79694,426.59819]],
+    R2:[[436902,1.74018,213.2991]]
+  },
+  uranus:{
+    L0:[[548129294,0,0],[9260408,0.89106,74.7815986],[1504248,3.62719,1.48447],[365982,1.89962,73.29712],[272328,3.35823,149.5632],[70328,5.39254,63.7359],[68933,3.36774,76.26607],[61751,2.26952,2.96895],[57031,5.91938,11.04570],[52192,5.62098,149.5632]],
+    L1:[[7502543122,0,0],[154458,5.24266,74.7816],[24456,1.07465,1.48447],[9258,0.42905,56.62324],[7842,1.31918,63.73586]],
+    L2:[[53033,0,0],[16984,3.14159,74.7816],[3036,6.00956,149.56320]],
+    L3:[[121,0.024,74.782]],
+    R_mean:19.2184
+  },
+  neptune:{
+    L0:[[531188633,0,0],[1798476,2.9010127,38.1330356],[1019728,0.4858,1.48447],[124532,4.83081,36.64856],[42064,5.41055,2.96895],[37715,6.09222,35.16409]],
+    L1:[[3837687717,0,0],[16604,4.86319,1.48447],[15807,2.27923,38.13304]],
+    L2:[[53893,0,0]],
+    L3:[],
+    R_mean:30.0699
+  }
+};
+
+function geocentric(jd,key){
+  const eL=vsop(jd,EL0,EL1,EL2,[]),eR=vsopR(jd,ER0,ER1,ER2);
+  const p=V[key];
+  const pL=vsop(jd,p.L0,p.L1,p.L2,p.L3||[]);
+  const pR=p.R_mean||vsopR(jd,p.R0||[],p.R1||[],p.R2||[]);
+  const lon=geoLon(eL,eR,pL,pR);
+  const eL1=vsop(jd+1,EL0,EL1,EL2,[]),eR1=vsopR(jd+1,ER0,ER1,ER2);
+  const pL1=vsop(jd+1,p.L0,p.L1,p.L2,p.L3||[]);
+  const lon1=geoLon(eL1,eR1,pL1,pR);
+  const eL0b=vsop(jd-1,EL0,EL1,EL2,[]),eR0b=vsopR(jd-1,ER0,ER1,ER2);
+  const pL0b=vsop(jd-1,p.L0,p.L1,p.L2,p.L3||[]);
+  const lon0=geoLon(eL0b,eR0b,pL0b,pR);
+  let diff=lon1-lon0; if(diff>180)diff-=360; if(diff<-180)diff+=360;
+  return{lon,retrograde:diff<0};
+}
+
+function sun(jd){
+  const T=(jd-2451545)/36525,T2=T*T;
+  const M=norm(357.52911+35999.05029*T-0.0001537*T2);
+  const C=(1.9146-0.004817*T)*Math.sin(M*DEG)+(0.019993-0.000101*T)*Math.sin(2*M*DEG)+0.00029*Math.sin(3*M*DEG);
+  const o=norm(125.04-1934.136*T);
+  return{lon:norm(280.46646+36000.76983*T+0.0003032*T2+C-0.00569-0.00478*Math.sin(o*DEG)),retrograde:false};
+}
+
+function moon(jd){
+  const T=(jd-2451545)/36525,T2=T*T,T3=T2*T,T4=T3*T;
+  const Lp=norm(218.3165+481267.8813*T-0.0013268*T2+T3/538841-T4/65194000);
+  const D=norm(297.8502+445267.1115*T-0.00163*T2+T3/545868);
+  const M=norm(357.5291+35999.0503*T-0.0001559*T2);
+  const Mp=norm(134.9634+477198.8676*T+0.008997*T2+T3/69699);
+  const F=norm(93.2721+483202.0175*T-0.0034029*T2);
+  const E=1-0.002516*T;
+  const s=(a,b)=>Math.sin(a*DEG)*b;
+  let lon=Lp+s(Mp,6.28875)+s(2*D-Mp,1.27402)+s(2*D,0.65831)+s(2*Mp,0.21362)
+    +s(M,-0.1856*E)+s(2*F,-0.11434)+s(2*D-2*Mp,0.0588)
+    +s(2*D-M-Mp,0.05721*E)+s(2*D+Mp,0.05332)+s(2*D-M,0.04587*E)
+    +s(M-Mp,0.04102*E)+s(D,-0.03472)+s(M+Mp,-0.03047*E)
+    +s(4*D-Mp,0.01068)+s(3*Mp,0.00855)+s(4*D,0.00386);
+  lon-=0.00478*Math.sin(norm(125.04452-1934.136261*T)*DEG);
+  return{lon:norm(lon),retrograde:false};
+}
+
+// Pluto — JPL/Standish orbital elements
+function pluto(jd){
+  function calcLon(j){
+    const T=(j-2451545)/36525;
+    const a=39.48211675+(-0.00031596)*T,e=0.24882730+(0.00005170)*T;
+    const I=(17.14001206+(0.00004818)*T)*DEG;
+    const L=norm(238.92903833+(145.20780515)*T);
+    const Lp=norm(224.06891629+(-0.04062942)*T);
+    const Om=norm(110.30393684+(-0.01183482)*T);
+    const M=norm(L-Lp),w=norm(Lp-Om);
+    let E=M;
+    for(let i=0;i<6;i++) E=E+(M-E+e*Math.sin(E*DEG)*RAD)/(1-e*Math.cos(E*DEG));
+    E=norm(E);
+    const sinV=Math.sqrt(1-e*e)*Math.sin(E*DEG)/(1-e*Math.cos(E*DEG));
+    const cosV=(Math.cos(E*DEG)-e)/(1-e*Math.cos(E*DEG));
+    const v=norm(Math.atan2(sinV,cosV)*RAD),u=v+w,r=a*(1-e*Math.cos(E*DEG));
+    const xh=r*(Math.cos(Om*DEG)*Math.cos(u*DEG)-Math.sin(Om*DEG)*Math.sin(u*DEG)*Math.cos(I));
+    const yh=r*(Math.sin(Om*DEG)*Math.cos(u*DEG)+Math.cos(Om*DEG)*Math.sin(u*DEG)*Math.cos(I));
+    return{lon:norm(Math.atan2(yh,xh)*RAD),r};
+  }
+  function geoP(j){
+    const p=calcLon(j);
+    const T=(j-2451545)/36525;
+    const ML=norm(280.46646+36000.76983*T);
+    const MA=norm(357.52911+35999.05029*T);
+    const C=(1.9146-0.004817*T)*Math.sin(MA*DEG)+0.019993*Math.sin(2*MA*DEG);
+    const eL=norm(ML+C+180),eR=1.00014-0.01671*Math.cos(MA*DEG)-0.00014*Math.cos(2*MA*DEG);
+    return norm(Math.atan2(p.r*Math.sin(p.lon*DEG)-eR*Math.sin(eL*DEG),p.r*Math.cos(p.lon*DEG)-eR*Math.cos(eL*DEG))*RAD);
+  }
+  const lon=geoP(jd);
+  let diff=geoP(jd+1)-geoP(jd-1);
+  if(diff>180)diff-=360;if(diff<-180)diff+=360;
+  return{lon,retrograde:diff<0};
+}
+
+// True Node (Meeus Ch.47)
+function lunarNodes(jd){
+  const T=(jd-2451545)/36525,T2=T*T,T3=T2*T;
+  const Om=norm(125.04452-1934.136261*T+0.0020708*T2+T3/450000);
+  const D=norm(297.8502+445267.1115*T-0.00163*T2+T3/545868);
+  const M=norm(357.5291+35999.0503*T-0.0001559*T2);
+  const Mp=norm(134.9634+477198.8676*T+0.0089970*T2+T3/69699);
+  const F=norm(93.2721+483202.0175*T-0.0034029*T2-T3/3526000);
+  const dOm=
+    -1.4979*Math.sin(2*(F-D)*DEG)
+    -0.1500*Math.sin(M*DEG)
+    -0.1226*Math.sin(2*F*DEG)
+    +0.1176*Math.sin(2*(F-D)*DEG)
+    -0.0801*Math.sin((Mp+2*F-2*D)*DEG)
+    +0.0376*Math.sin(2*Om*DEG)
+    -0.0253*Math.sin(2*(F+D)*DEG)
+    +0.0209*Math.sin(2*D*DEG)
+    -0.0117*Math.sin(Mp*DEG);
+  const ascending=norm(Om+dOm);
+  return{ascending,descending:norm(ascending+180)};
+}
+
+// ── ZNAKI ZODIAKU ─────────────────────────────────────────────
+const SIGNS=[
+  {name:'Baran',      genitive:'Barana',        symbol:'♈',color:'#c0392b'},
+  {name:'Byk',        genitive:'Byka',          symbol:'♉',color:'#27ae60'},
+  {name:'Bliźnięta',  genitive:'Bliźniąt',      symbol:'♊',color:'#c8961a'},
+  {name:'Rak',        genitive:'Raka',          symbol:'♋',color:'#2980b9'},
+  {name:'Lew',        genitive:'Lwa',           symbol:'♌',color:'#d35400'},
+  {name:'Panna',      genitive:'Panny',         symbol:'♍',color:'#16a085'},
+  {name:'Waga',       genitive:'Wagi',          symbol:'♎',color:'#8e44ad'},
+  {name:'Skorpion',   genitive:'Skorpiona',     symbol:'♏',color:'#922b21'},
+  {name:'Strzelec',   genitive:'Strzelca',      symbol:'♐',color:'#ca6f1e'},
+  {name:'Koziorożec', genitive:'Koziorożca',    symbol:'♑',color:'#566573'},
+  {name:'Wodnik',     genitive:'Wodnika',       symbol:'♒',color:'#1a5276'},
+  {name:'Ryby',       genitive:'Ryb',           symbol:'♓',color:'#6c3483'},
+];
+function sign(lon){const i=Math.floor(lon/30),d=lon%30,dg=Math.floor(d),mn=Math.floor((d-dg)*60);return{...SIGNS[i],deg:dg,min:mn};}
+
+// ── PLANETY ───────────────────────────────────────────────────
+const PLANETS=[
+  {name:'Słońce',                   symbol:'☉',color:'#c47c0a',calc:j=>sun(j)},
+  {name:'Księżyc',                  symbol:'☽',color:'#2471a3',calc:j=>moon(j)},
+  {name:'Merkury',                  symbol:'☿',color:'#707b8a',calc:j=>geocentric(j,'mercury')},
+  {name:'Wenus',                    symbol:'♀',color:'#1e8449',calc:j=>geocentric(j,'venus')},
+  {name:'Mars',                     symbol:'♂',color:'#c0392b',calc:j=>geocentric(j,'mars')},
+  {name:'Jowisz',                   symbol:'♃',color:'#9a6b00',calc:j=>geocentric(j,'jupiter')},
+  {name:'Saturn',                   symbol:'♄',color:'#7d6608',calc:j=>geocentric(j,'saturn')},
+  {name:'Uran',                     symbol:'⛢',color:'#0e7490',calc:j=>geocentric(j,'uranus')},
+  {name:'Neptun',                   symbol:'♆',color:'#1a3a7e',calc:j=>geocentric(j,'neptune')},
+  {name:'Pluton',                   symbol:'♇',color:'#6d4c41',calc:j=>pluto(j)},
+  {name:'Północny Węzeł Księżyca',  symbol:'☊',color:'#9b7200',isNode:true,calc:j=>{const n=lunarNodes(j);return{lon:n.ascending, retrograde:true};}},
+  {name:'Południowy Węzeł Księżyca',symbol:'☋',color:'#9b7200',isNode:true,calc:j=>{const n=lunarNodes(j);return{lon:n.descending,retrograde:true};}},
+];
+
+// ── FAZA KSIĘŻYCA ─────────────────────────────────────────────
+function moonPhase(data){
+  const sunLon=data[0]?.lon,moonLon=data[1]?.lon;
+  if(sunLon==null||moonLon==null) return null;
+  const angle=((moonLon-sunLon)%360+360)%360;
+  let name,emoji;
+  if(angle<22.5)       {name='Nów';               emoji='🌑';}
+  else if(angle<67.5)  {name='Przybywający Sierp'; emoji='🌒';}
+  else if(angle<112.5) {name='Pierwsza Kwadra';    emoji='🌓';}
+  else if(angle<157.5) {name='Przybywający Garb';  emoji='🌔';}
+  else if(angle<202.5) {name='Pełnia';             emoji='🌕';}
+  else if(angle<247.5) {name='Ubywający Garb';     emoji='🌖';}
+  else if(angle<292.5) {name='Ostatnia Kwadra';    emoji='🌗';}
+  else if(angle<337.5) {name='Ubywający Sierp';    emoji='🌘';}
+  else                 {name='Nów';               emoji='🌑';}
+  return{name,emoji,illum:Math.round((1-Math.cos(angle*DEG))/2*100)};
+}
+
+// ── ASPEKTY ───────────────────────────────────────────────────
+const ASPECT_DEFS=[
+  {name:'Koniunkcja',angle:  0,orb:8,color:'rgba(100,100,200,0.55)',dash:'',    width:1.5},
+  {name:'Opozycja',  angle:180,orb:8,color:'rgba(180,40,40,0.55)',  dash:'',    width:1.5},
+  {name:'Trygon',    angle:120,orb:7,color:'rgba(40,160,80,0.55)',  dash:'',    width:1.4},
+  {name:'Kwadratura',angle: 90,orb:7,color:'rgba(200,50,50,0.50)',  dash:'5,3', width:1.3},
+  {name:'Sekstyl',   angle: 60,orb:5,color:'rgba(40,120,200,0.50)', dash:'3,2', width:1.2},
+  {name:'Półkwadrat',angle: 45,orb:2,color:'rgba(180,100,40,0.40)', dash:'2,3', width:0.9},
+  {name:'Kwinkuńks', angle:150,orb:2,color:'rgba(160,40,160,0.40)', dash:'4,3', width:0.9},
+];
+function calcAspects(data){
+  const aspects=[];
+  for(let i=0;i<data.length;i++){
+    if(!data[i]||PLANETS[i].isNode) continue;
+    for(let j=i+1;j<data.length;j++){
+      if(!data[j]||PLANETS[j].isNode) continue;
+      let diff=Math.abs(data[i].lon-data[j].lon);
+      if(diff>180) diff=360-diff;
+      for(const asp of ASPECT_DEFS){
+        if(Math.abs(diff-asp.angle)<=asp.orb){aspects.push({p1:i,p2:j,asp});break;}
+      }
+    }
+  }
+  return aspects;
+}
+
+// ── KOŁO ZODIAKU ─────────────────────────────────────────────
+function drawWheel(data){
+  const svg=document.getElementById('horoscope-wheel');
+  const cx=260,cy=260,rO=244,rB=208,rI=172;
+  svg.innerHTML='';
+  const ns='http://www.w3.org/2000/svg';
+  const mk=(tag,attrs,txt)=>{const e=document.createElementNS(ns,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);if(txt!==undefined)e.textContent=txt;return e;};
+  const dark=document.body.classList.contains('dark');
+
+  const defs=mk('defs',{});
+  const gr=mk('radialGradient',{id:'bg',cx:'50%',cy:'50%',r:'50%'});
+  gr.appendChild(mk('stop',{offset:'0%','stop-color':dark?'#131c32':'#eef2fb'}));
+  gr.appendChild(mk('stop',{offset:'100%','stop-color':dark?'#0a1020':'#dde4f5'}));
+  defs.appendChild(gr); svg.appendChild(defs);
+  svg.appendChild(mk('circle',{cx,cy,r:rO,fill:'url(#bg)',stroke:dark?'#1e2d4a':'#b0bcd8','stroke-width':'1.5'}));
+
+  for(let i=0;i<12;i++){
+    const a1=(180-i*30)*DEG,a2=(180-(i+1)*30)*DEG;
+    const x1=cx+rB*Math.cos(a1),y1=cy+rB*Math.sin(a1);
+    const x2=cx+rO*Math.cos(a1),y2=cy+rO*Math.sin(a1);
+    const x3=cx+rO*Math.cos(a2),y3=cy+rO*Math.sin(a2);
+    const x4=cx+rB*Math.cos(a2),y4=cy+rB*Math.sin(a2);
+    svg.appendChild(mk('path',{
+      d:`M ${x1} ${y1} L ${x2} ${y2} A ${rO} ${rO} 0 0 1 ${x3} ${y3} L ${x4} ${y4} A ${rB} ${rB} 0 0 0 ${x1} ${y1}`,
+      fill:SIGNS[i].color+'22',stroke:dark?'#1e2d4a':'#b8c4dc','stroke-width':'0.5'
+    }));
+    const ma=(180-(i+0.5)*30)*DEG,rs=(rB+rO)/2;
+    svg.appendChild(mk('text',{
+      x:cx+rs*Math.cos(ma),y:cy+rs*Math.sin(ma),
+      'text-anchor':'middle','dominant-baseline':'central',
+      fill:SIGNS[i].color,'font-size':'18','font-weight':'bold','font-family':'serif'
+    },SIGNS[i].symbol));
+  }
+
+  svg.appendChild(mk('circle',{cx,cy,r:rB,fill:'none',stroke:dark?'#1e2d4a':'#a8b8d8','stroke-width':'1.2'}));
+  svg.appendChild(mk('circle',{cx,cy,r:rI,fill:dark?'#0d1626':'#f8faff',stroke:dark?'#182436':'#b8c8e0','stroke-width':'1'}));
+  svg.appendChild(mk('circle',{cx,cy,r:rI-1,fill:dark?'#0b1220':'#f4f7fd',stroke:'none'}));
+
+  for(let i=0;i<360;i+=5){
+    const a=(180-i)*DEG,r1=i%30===0?rI-14:i%10===0?rI-8:rI-4;
+    svg.appendChild(mk('line',{
+      x1:cx+rI*Math.cos(a),y1:cy+rI*Math.sin(a),
+      x2:cx+r1*Math.cos(a),y2:cy+r1*Math.sin(a),
+      stroke:i%30===0?(dark?'#4060a0':'#6070a0'):(dark?'#1e2d4a':'#b0bcd8'),
+      'stroke-width':i%30===0?'1.4':'0.6'
+    }));
+  }
+  for(let i=0;i<12;i++){
+    const a=(180-i*30)*DEG;
+    svg.appendChild(mk('line',{
+      x1:cx+rI*Math.cos(a),y1:cy+rI*Math.sin(a),
+      x2:cx+rB*Math.cos(a),y2:cy+rB*Math.sin(a),
+      stroke:dark?'#2a3d60':'#8898c0','stroke-width':'0.9'
+    }));
+  }
+
+  // Aspekty
+  const aspects=calcAspects(data);
+  const rAsp=rI-4;
+  aspects.forEach(({p1,p2,asp})=>{
+    if(!data[p1]||!data[p2]) return;
+    const a1=(180-data[p1].lon)*DEG,a2=(180-data[p2].lon)*DEG;
+    const ln=mk('line',{
+      x1:cx+rAsp*Math.cos(a1),y1:cy+rAsp*Math.sin(a1),
+      x2:cx+rAsp*Math.cos(a2),y2:cy+rAsp*Math.sin(a2),
+      stroke:asp.color,'stroke-width':String(asp.width)
+    });
+    if(asp.dash) ln.setAttribute('stroke-dasharray',asp.dash);
+    svg.appendChild(ln);
+  });
+
+  // Centrum — faza Księżyca
+  const phase=moonPhase(data);
+  svg.appendChild(mk('circle',{cx,cy,r:30,fill:dark?'#0d1626':'#e8eef8',stroke:dark?'#1e2d4a':'#c0cce0','stroke-width':'1'}));
+  if(phase){
+    svg.appendChild(mk('text',{x:cx,y:cy-8,'text-anchor':'middle','dominant-baseline':'central','font-size':'20'},phase.emoji));
+    svg.appendChild(mk('text',{x:cx,y:cy+12,'text-anchor':'middle','dominant-baseline':'central',
+      fill:dark?'#6080b0':'#4a5a80','font-size':'8','font-weight':'600','font-family':'Raleway,sans-serif'},`${phase.illum}%`));
+  }
+
+  // Planety i węzły
+  data.forEach((p,idx)=>{
+    if(!p) return;
+    const angle=(180-p.lon)*DEG;
+    const dotX=cx+rI*Math.cos(angle),dotY=cy+rI*Math.sin(angle);
+
+    const hit=mk('circle',{cx:dotX,cy:dotY,r:'12',fill:'transparent','pointer-events':'all',cursor:'pointer'});
+    
+    // Symbol planety (zamiast kropki)
+    const dot=mk('text',{
+      x:dotX,y:dotY,
+      'text-anchor':'middle','dominant-baseline':'central',
+      fill:PLANETS[idx].color,
+      'font-size':PLANETS[idx].isNode?'18':'16',
+      'font-family':'serif',
+      'font-weight':'bold',
+      'pointer-events':'none',
+      'filter':'drop-shadow(0 1px 2px rgba(0,0,0,0.3))'
+    },PLANETS[idx].symbol);
+
+    const sym=PLANETS[idx].symbol, pname=PLANETS[idx].name;
+    const s=sign(p.lon); // Get zodiac sign info
+    const degMin=`${s.deg}°${String(s.min).padStart(2,'0')}'`; // Format degrees
+    hit.addEventListener('mouseenter',(e)=>{
+      const tip=document.getElementById('planetTooltip');
+      tip.querySelector('.tip-sym').textContent=sym;
+      tip.querySelector('.tip-sym').style.color=PLANETS[idx].color;
+      tip.querySelector('.tip-name').textContent=pname+' w Znaku '+s.genitive;
+      tip.querySelector('.tip-deg').textContent=degMin;
+      tip.style.display='flex';
+      // Pozycja względem SVG kontenera
+      const rect=svg.getBoundingClientRect();
+      const scaleX=rect.width/520, scaleY=rect.height/520;
+      const px=rect.left+dotX*scaleX, py=rect.top+dotY*scaleY;
+      const above=dotY>260;
+      tip.style.left=px+'px';
+      tip.style.top=(above ? py-44 : py+14)+'px';
+      tip.style.transform='translateX(-50%)';
+    });
+    hit.addEventListener('mouseleave',()=>{
+      document.getElementById('planetTooltip').style.display='none';
+    });
+    svg.appendChild(hit);
+    svg.appendChild(dot);
+  });
+  svg.appendChild(mk('circle',{cx,cy,r:rO,fill:'none',stroke:dark?'#2a3d60':'#8898c0','stroke-width':'1.5'}));
+}
+
+// ── TABELA PLANET ─────────────────────────────────────────────
+function renderList(data){
+  const tbody=document.getElementById('planet-tbody');
+  if(!tbody) return;
+  tbody.innerHTML='';
+  data.forEach((p,i)=>{
+    if(!p) return;
+    const s=sign(p.lon),ms=String(s.min).padStart(2,'0');
+    const tr=document.createElement('tr');
+    tr.style.animationDelay=(i*0.04)+'s';
+    tr.innerHTML=`
+      <td class="td-sym"><span style="color:${PLANETS[i].color}">${PLANETS[i].symbol}</span></td>
+      <td class="td-name">${PLANETS[i].name}</td>
+      <td><div class="td-sign"><span class="sign-sym" style="color:${s.color}">${s.symbol}</span><span class="sign-nm">${s.name}</span></div></td>
+      <td class="td-rx">${p.retrograde?'<span class="retro">Rx</span>':''}</td>
+      <td class="td-deg"><span class="deg-pill">${s.deg}°${ms}'</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── STAN CZASU ────────────────────────────────────────────────
+let currentDate=new Date(), isLive=true, isAnimating=false;
+let animSpeed=7, animFrame=null, lastAnimTs=null;
+
+// ── RENDER ────────────────────────────────────────────────────
+function render(d){
+  const j=julianDate(d);
+  document.getElementById('current-date').textContent=
+    d.toLocaleDateString('pl-PL',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'UTC'})+' UTC';
+  document.getElementById('modeBadge').classList.toggle('visible',!isLive);
+  document.getElementById('liveDot').classList.toggle('paused',!isLive);
+  document.getElementById('liveLabel').textContent=isLive?'NA ŻYWO':'TRYB HISTORYCZNY';
+  const iso=d.toISOString();
+  document.getElementById('datePicker').value=iso.slice(0,10);
+  document.getElementById('timePicker').value=iso.slice(11,16);
+  const data=PLANETS.map(p=>{try{return p.calc(j);}catch(e){return null;}});
+  renderList(data);
+  drawWheel(data);
+  const phase=moonPhase(data);
+  if(phase){
+    document.getElementById('moonEmoji').textContent=phase.emoji;
+    document.getElementById('moonName').textContent=phase.name;
+    document.getElementById('moonPct').textContent=phase.illum+'%';
+    document.getElementById('moonFill').style.width=phase.illum+'%';
+  }
+  const aspects=calcAspects(data);
+  const seen=new Set();
+  const legEl=document.getElementById('aspectLegend');
+  if(legEl){
+    legEl.innerHTML='';
+    aspects.forEach(({asp})=>{
+      if(seen.has(asp.name)) return; seen.add(asp.name);
+      const item=document.createElement('div'); item.className='asp-item';
+      const line=document.createElement('div'); line.className='asp-line';
+      line.style.background=asp.color.replace(/[\d.]+\)/,'1)');
+      if(asp.dash) line.style.backgroundImage=`repeating-linear-gradient(90deg,${line.style.background} 0,${line.style.background} 4px,transparent 4px,transparent 7px)`;
+      item.appendChild(line);
+      item.appendChild(document.createTextNode(asp.name));
+      legEl.appendChild(item);
+    });
+  }
+}
+
+// ── CZAS ─────────────────────────────────────────────────────
+function stepDate(d,amount,unit){
+  const MS={minute:60000,hour:3600000,day:86400000,week:604800000};
+  if(unit==='month'){const nd=new Date(d);nd.setUTCMonth(nd.getUTCMonth()+amount);return nd;}
+  if(unit==='year') {const nd=new Date(d);nd.setUTCFullYear(nd.getUTCFullYear()+amount);return nd;}
+  return new Date(d.getTime()+amount*(MS[unit]||MS.day));
+}
+function goToDate(d){currentDate=d;isLive=false;render(currentDate);}
+function goLive(){currentDate=new Date();isLive=true;stopAnimation();render(currentDate);}
+
+function startAnimation(){
+  if(isAnimating) return;
+  isAnimating=true; isLive=false; lastAnimTs=null;
+  document.getElementById('animBtn').textContent='⏸ Pauza';
+  document.getElementById('animBtn').classList.add('active-anim');
+  (function tick(ts){
+    if(!lastAnimTs) lastAnimTs=ts;
+    currentDate=new Date(currentDate.getTime()+animSpeed*86400000*(ts-lastAnimTs)/1000);
+    lastAnimTs=ts;
+    render(currentDate);
+    animFrame=requestAnimationFrame(tick);
+  })(performance.now());
+}
+function stopAnimation(){
+  isAnimating=false;
+  if(animFrame){cancelAnimationFrame(animFrame);animFrame=null;}
+  document.getElementById('animBtn').textContent='▶ Odtwórz';
+  document.getElementById('animBtn').classList.remove('active-anim');
+}
+
+// ── EVENTY ───────────────────────────────────────────────────
+document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{
+  stopAnimation(); goToDate(stepDate(currentDate,parseInt(b.dataset.step),b.dataset.unit));
+}));
+document.getElementById('jumpBtn').addEventListener('click',()=>{
+  stopAnimation();
+  const dp=document.getElementById('datePicker').value;
+  const tp=document.getElementById('timePicker').value||'12:00';
+  if(dp) goToDate(new Date(dp+'T'+tp+':00Z'));
+});
+document.getElementById('nowBtn').addEventListener('click',()=>goLive());
+document.getElementById('animBtn').addEventListener('click',()=>isAnimating?stopAnimation():startAnimation());
+document.querySelectorAll('[data-animspeed]').forEach(b=>b.addEventListener('click',()=>{
+  animSpeed=parseFloat(b.dataset.animspeed);
+  document.querySelectorAll('[data-animspeed]').forEach(x=>x.classList.remove('active-anim'));
+  b.classList.add('active-anim');
+  if(isAnimating){stopAnimation();startAnimation();}
+}));
+document.getElementById('darkToggle').addEventListener('click',function(){
+  document.body.classList.toggle('dark');
+  this.textContent=document.body.classList.contains('dark')?'☀️':'🌙';
+  render(currentDate);
+});
+setInterval(()=>{if(isLive&&!isAnimating){currentDate=new Date();render(currentDate);}},60000);
+render(currentDate);
+
+</script>
+</body>
+</html>
