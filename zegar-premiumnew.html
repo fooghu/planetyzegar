@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Niebo Teraz · Wersja Rozszerzona</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f4f6fb; --white:#fff; --accent:#1e3a5f; --accent2:#2d5a8e;
+  --teal:#1a7a8a; --muted:#6070a0; --border:#dce4f4;
+  --red:#b03030; --shadow:0 4px 28px rgba(30,58,95,.14);
+  --gold:#b8860b; --gold-light:#ffd700; --gold-bg:#fdf8e8;
+  --gold-border:#e8c878; --gold-muted:#9a7010;
+}
+body.dark {
+  --bg:#0d1120; --white:#151c30; --accent:#7ba4d4; --accent2:#5585ba;
+  --teal:#2aa8b8; --muted:#6880a8; --border:#1e2d4a;
+  --red:#e05555; --shadow:0 4px 28px rgba(0,0,0,.6);
+  --gold:#d4a017; --gold-light:#ffd700; --gold-bg:#1a1505;
+  --gold-border:#5a4010; --gold-muted:#c8a040;
+}
+body.dark .card-title,body.dark .tp-title{color:rgba(180,210,255,.9);}
+body.dark h1{color:#90b8e8;}
+body.dark .subtitle,body.dark .moon-name{color:var(--muted);}
+body.dark .engine-badge{background:#1a2540;border-color:#2a3d60;color:#80a8d8;}
+body.dark .header-card,body.dark .time-card,body.dark .wheel-card,body.dark .table-card{background:var(--white);}
+body.dark .tb{background:#192038;border-color:#2a3d60;color:#90b0d8;}
+body.dark .tb:hover{background:#1e2d50;}
+body.dark .tb.primary{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+body.dark .tb.danger{background:#2a1515;color:#e06060;border-color:#3a2020;}
+body.dark .tb.active-anim{background:var(--teal);color:#fff;border-color:var(--teal);}
+body.dark .date-input{background:#192038;border-color:#2a3d60;color:#90b0d8;}
+body.dark .moon-track{background:#1e2d4a;}
+body.dark .moon-pct{color:#80a8d8;}
+body.dark .asp-item{color:#6880a8;}
+body.dark .planet-table thead tr{background:#111828;}
+body.dark .planet-table thead th{color:#5070a0;}
+body.dark .planet-table tbody tr:hover{background:#192038;}
+body.dark .planet-table tbody tr{border-color:#1a2840;}
+body.dark .sign-nm{color:var(--teal);}
+body.dark .td-name{color:#7898c8;}
+body.dark .deg-pill{background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,140,0,0.12));color:#ffd700;}
+body.dark #current-date{color:#7898c8;}
+body.dark .mode-badge{background:#2a200a;border-color:#5a4010;color:#c8a040;}
+body.dark .wheel-body{background:radial-gradient(ellipse at center,#131c32 0%,#0a1020 100%);}
+body.dark footer{color:#304060;}
+body.dark .natal-card,body.dark .transits-card,body.dark .calendar-card{background:var(--white);}
+body.dark .natal-field label{color:#7898c8;}
+body.dark .natal-field input{background:#192038;border-color:#2a3d60;color:#90b0d8;}
+body.dark .natal-field input:focus{border-color:var(--gold);}
+body.dark .natal-saved-info{background:#1a1505;border-color:var(--gold-border);}
+body.dark .transit-item{border-color:#1e2d4a;}
+body.dark .transit-item:hover{background:#1a2038;}
+body.dark .cal-item{border-color:#1e2d4a;}
+body.dark .cal-item:hover{background:#1a2038;}
+body.dark .no-natal-msg{color:#5070a0;}
+body.dark .tb.gold{background:#1a1505;border-color:var(--gold-border);color:var(--gold-light);}
+body.dark .tb.gold:hover{background:#221a05;}
+body.dark .premium-badge{background:linear-gradient(135deg,#4a3000,#6a4500);border-color:#8a6010;color:var(--gold-light);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:"Raleway",sans-serif;display:flex;flex-direction:column;align-items:center;padding:18px 12px 28px;}
+.container{width:100%;max-width:680px;display:flex;flex-direction:column;gap:14px;}
+
+/* ── HEADER ── */
+.header-card{background:var(--white);border-radius:8px;box-shadow:var(--shadow);border-top:4px solid var(--accent);padding:16px 24px 14px;text-align:center;}
+h1{font-size:20px;font-weight:700;color:var(--accent);letter-spacing:4px;text-transform:uppercase;margin-bottom:3px;}
+.subtitle{font-family:"Lora",serif;font-style:italic;color:var(--muted);font-size:13px;}
+.accent-bar{width:36px;height:3px;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:2px;margin:8px auto 6px;}
+.engine-badge{display:inline-flex;align-items:center;gap:5px;background:#eef4ff;border:1px solid #c0d0e8;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:600;color:var(--accent);letter-spacing:1px;}
+.engine-badge .dot{width:6px;height:6px;background:#27ae60;border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.premium-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#fdf0c8,#faeab0);border:1px solid var(--gold-border);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase;}
+.header-controls{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.tb.gold{background:var(--gold-bg);border:1px solid var(--gold-border);color:var(--gold);font-size:10px;font-weight:700;padding:4px 12px;border-radius:5px;cursor:pointer;transition:all .15s;font-family:"Raleway",sans-serif;letter-spacing:.5px;white-space:nowrap;}
+.tb.gold:hover{background:#fdf0c0;border-color:var(--gold);}
+.tb.gold.active{background:linear-gradient(135deg,#ffe878,#ffd040);color:#5a3a00;border-color:#c8a020;}
+
+/* ── TIME PANEL ── */
+.time-card{background:var(--white);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;}
+.time-card-header{background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);padding:9px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.tp-title{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.88);}
+.live-badge{display:flex;align-items:center;gap:4px;font-size:9px;color:rgba(255,255,255,.7);letter-spacing:1px;text-transform:uppercase;}
+.live-dot{width:5px;height:5px;background:#4ade80;border-radius:50%;animation:pulse 1.5s infinite;}
+.live-dot.paused{background:#f87171;animation:none;}
+.time-body{padding:12px 16px;display:flex;flex-direction:column;gap:10px;}
+.date-display{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+#current-date{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.4px;text-align:center;}
+.mode-badge{font-size:9px;background:#fdf3e7;border:1px solid #e8c87a;color:#9a6f20;border-radius:10px;padding:2px 7px;font-weight:600;letter-spacing:.5px;display:none;}
+.mode-badge.visible{display:inline-block;}
+.step-row{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;}
+.step-group{display:flex;align-items:center;gap:4px;background:#f0f4fb;border-radius:6px;padding:5px 8px;}
+.step-label{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+.tb{background:var(--white);border:1px solid var(--border);color:var(--accent);font-size:11px;font-weight:700;padding:5px 12px;border-radius:5px;cursor:pointer;transition:all .15s;font-family:"Raleway",sans-serif;letter-spacing:.3px;white-space:nowrap;}
+.tb:hover{background:#e8eef8;border-color:#a0b4d0;}
+.tb:active{transform:scale(.97);}
+.tb.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.tb.primary:hover{background:var(--accent2);}
+.tb.danger{background:#fff5f5;color:var(--red);border-color:#f0c0c0;}
+.tb.danger:hover{background:#fee2e2;}
+.tb.active-anim{background:var(--teal);color:#fff;border-color:var(--teal);}
+.picker-row{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;}
+.date-input{border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:11px;font-family:"Raleway",sans-serif;color:var(--accent);background:var(--white);outline:none;transition:border .15s;}
+.date-input:focus{border-color:var(--accent2);}
+.time-input{width:82px;}
+.anim-row{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap;}
+
+/* ── WHEEL CARD ── */
+.wheel-card{background:var(--white);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;}
+.wheel-card-header{background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);padding:9px 16px;display:flex;align-items:center;gap:8px;}
+.card-title{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.92);}
+.wheel-body{background:radial-gradient(ellipse at center,#eef2fb 0%,#f0f4ff 100%);display:flex;justify-content:center;padding:20px;}
+#horoscope-wheel{width:100%;max-width:580px;height:auto;filter:drop-shadow(0 3px 12px rgba(30,58,95,.15));}
+
+/* ── PLANET TABLE ── */
+.table-card{background:var(--white);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;}
+.table-card-header{background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);padding:9px 16px;display:flex;align-items:center;gap:8px;}
+.planet-table{width:100%;border-collapse:collapse;}
+.planet-table thead tr{background:#f0f4fb;border-bottom:2px solid var(--border);}
+.planet-table thead th{padding:7px 10px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);text-align:left;}
+.planet-table thead th:last-child{text-align:right;}
+.planet-table tbody tr{border-bottom:1px solid var(--border);transition:background .12s;animation:fadeIn .3s ease both;}
+.planet-table tbody tr:last-child{border-bottom:none;}
+.planet-table tbody tr:hover{background:#f4f7ff;}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-3px)}to{opacity:1;transform:none}}
+.planet-table td{padding:8px 10px;vertical-align:middle;}
+.td-sym{font-size:18px;line-height:1;width:28px;}
+.td-name{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);width:72px;}
+.td-sign{display:flex;align-items:center;gap:5px;}
+.sign-sym{font-size:14px;line-height:1;}
+.sign-nm{font-family:"Lora",serif;font-style:italic;font-size:13px;color:var(--teal);}
+.td-rx{width:32px;}
+.retro{color:var(--red);font-size:9px;font-weight:700;background:#fdecea;padding:2px 5px;border-radius:3px;letter-spacing:.5px;}
+.td-deg{text-align:right;}
+.deg-pill{display:inline-block;font-size:11px;font-weight:700;color:var(--white);background:linear-gradient(135deg,var(--accent),var(--accent2));padding:3px 9px;border-radius:12px;letter-spacing:.3px;}
+
+/* ── WHEEL FOOTER ── */
+.wheel-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px;}
+.moon-bar{display:flex;align-items:center;gap:10px;}
+.moon-emoji{font-size:26px;line-height:1;flex-shrink:0;}
+.moon-info{flex:1;display:flex;flex-direction:column;gap:3px;}
+.moon-name{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.5px;}
+.moon-track{height:6px;background:#dde4f4;border-radius:3px;overflow:hidden;}
+.moon-fill{height:100%;background:linear-gradient(90deg,#f5c842,#ffaa00);border-radius:3px;transition:width .5s ease;}
+.moon-pct{font-size:13px;font-weight:700;color:var(--accent2);min-width:36px;text-align:right;}
+.aspect-legend{padding:8px 16px 12px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--border);}
+.asp-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);}
+.asp-line{width:20px;height:2px;border-radius:1px;flex-shrink:0;}
+
+/* ── NATAL INPUT CARD ── */
+.natal-card{background:var(--white);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;border-left:3px solid var(--gold);}
+.natal-card-header{background:linear-gradient(135deg,#3a2800 0%,#5a4000 100%);padding:9px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.natal-card-header:hover{background:linear-gradient(135deg,#4a3200 0%,#6a4800 100%);}
+.natal-header-left{display:flex;align-items:center;gap:8px;}
+.natal-title{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,220,120,.92);}
+.natal-chevron{font-size:12px;color:rgba(255,220,120,.7);transition:transform .25s;}
+.natal-chevron.open{transform:rotate(180deg);}
+.natal-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
+.natal-body.hidden{display:none;}
+.natal-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:480px){.natal-fields{grid-template-columns:1fr;}}
+.natal-field{display:flex;flex-direction:column;gap:4px;}
+.natal-field label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-muted);}
+.natal-field input{border:1px solid var(--gold-border);border-radius:5px;padding:6px 9px;font-size:12px;font-family:"Raleway",sans-serif;color:var(--accent);background:var(--gold-bg);outline:none;transition:border .15s;}
+.natal-field input:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(184,134,11,.12);}
+.natal-field input::placeholder{color:var(--muted);opacity:.6;}
+.natal-saved-info{display:none;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--gold-muted);font-weight:600;}
+.natal-saved-info.visible{display:block;}
+.natal-btn-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.tb.gold-solid{background:linear-gradient(135deg,#c47c0a,#a06000);color:#fff;border:none;font-size:11px;font-weight:700;padding:7px 16px;border-radius:5px;cursor:pointer;transition:all .15s;font-family:"Raleway",sans-serif;letter-spacing:.5px;}
+.tb.gold-solid:hover{background:linear-gradient(135deg,#d49020,#b07000);transform:translateY(-1px);}
+.tb.clear-natal{background:var(--white);border:1px solid var(--border);color:var(--muted);font-size:10px;font-weight:600;padding:5px 10px;border-radius:5px;cursor:pointer;transition:all .15s;font-family:"Raleway",sans-serif;}
+.tb.clear-natal:hover{border-color:var(--red);color:var(--red);}
+
+/* ── ACTIVE TRANSITS CARD ── */
+.transits-card{background:var(--white);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;border-left:3px solid var(--teal);}
+.transits-card-header{background:linear-gradient(135deg,var(--accent) 0%,var(--teal) 100%);padding:9px 16px;display:flex;align-items:center;gap:8px;}
+.transits-body{padding:4px 0;}
+.no-natal-msg{padding:16px;text-align:center;font-size:12px;color:var(--muted);font-style:italic;font-family:"Lora",serif;}
+.transit-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);transition:background .12s;animation:fadeIn .25s ease both;}
+.transit-item:last-child{border-bottom:none;}
+.transit-item:hover{background:#f4f7ff;}
+.tr-sym{font-size:18px;line-height:1;flex-shrink:0;}
+.tr-name{font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--accent);flex-shrink:0;min-width:56px;}
+.tr-asp-badge{display:inline-flex;align-items:center;gap:3px;background:#f0f4fb;border-radius:12px;padding:3px 9px;font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--muted);white-space:nowrap;flex-shrink:0;}
+.tr-asp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.tr-natal{display:flex;align-items:center;gap:5px;flex:1;}
+.tr-natal-sym{font-size:16px;line-height:1;opacity:.7;}
+.tr-natal-name{font-size:10px;font-weight:600;color:var(--teal);letter-spacing:.3px;}
+.tr-orb{font-size:9px;font-weight:700;color:var(--muted);background:#f0f4fb;border-radius:8px;padding:2px 7px;white-space:nowrap;flex-shrink:0;}
+
+/* ── 30-DAY CALENDAR CARD ── */
+.calendar-card{background:var(--white);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;border-left:3px solid #8e44ad;}
+.calendar-card-header{background:linear-gradient(135deg,#2c1a5a 0%,#5a2a8a 100%);padding:9px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.calendar-card-header:hover{background:linear-gradient(135deg,#3a2268 0%,#6a3298 100%);}
+.calendar-title{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(210,180,255,.92);}
+.calendar-chevron{font-size:12px;color:rgba(210,180,255,.7);transition:transform .25s;}
+.calendar-chevron.open{transform:rotate(180deg);}
+.calendar-body{display:flex;flex-direction:column;}
+.calendar-body.hidden{display:none;}
+.cal-no-natal{padding:16px;text-align:center;font-size:12px;color:var(--muted);font-style:italic;font-family:"Lora",serif;}
+.cal-loading{padding:16px;text-align:center;font-size:12px;color:var(--muted);}
+.cal-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);transition:background .12s;animation:fadeIn .2s ease both;}
+.cal-item:last-child{border-bottom:none;}
+.cal-item:hover{background:#f8f4ff;}
+.cal-date{font-size:10px;font-weight:700;color:#6d28d9;letter-spacing:.3px;min-width:80px;flex-shrink:0;}
+.cal-icon{font-size:13px;flex-shrink:0;}
+.cal-desc{font-size:11px;color:var(--accent);flex:1;}
+.cal-orb-pill{font-size:9px;color:#8e44ad;background:#f5eeff;border-radius:8px;padding:2px 7px;flex-shrink:0;font-weight:600;}
+
+/* ── WHEEL LEGEND ── */
+.wheel-legend{display:flex;align-items:center;gap:14px;padding:8px 16px 10px;flex-wrap:wrap;border-top:1px solid var(--border);}
+.wl-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);}
+.wl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+/* ── MISC ── */
+footer{text-align:center;margin-top:6px;font-size:10px;color:var(--muted);opacity:.55;letter-spacing:.5px;}
+#loadingMsg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,25,50,0.85);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#fff;font-size:14px;font-family:Raleway,sans-serif;letter-spacing:1px;}
+#planetTooltip{position:fixed;z-index:9999;display:flex;align-items:center;gap:8px;background:rgba(12,25,60,0.95);border:1px solid rgba(100,140,220,0.3);border-radius:8px;padding:6px 12px;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.4);}
+.tip-sym{font-family:serif;font-size:18px;line-height:1;}
+.tip-name{font-family:'Raleway',sans-serif;font-size:11px;font-weight:700;color:#b8d0ff;letter-spacing:1px;text-transform:uppercase;}
+.tip-deg{font-family:'Raleway',sans-serif;font-size:13px;font-weight:800;color:#ffd700;background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,140,0,0.12));padding:2px 8px;border-radius:4px;letter-spacing:0.5px;}
+.spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,0.2);border-top-color:#7ba4d4;border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── PREMIUM VISIBILITY ── */
+.premium-feature{transition:opacity .2s;}
+body.basic-mode .premium-feature{display:none!important;}
+</style>
+</head>
+<body>
+<div id="loadingMsg"><div class="spinner"></div>Ładowanie Swiss Ephemeris…</div>
+<div id="planetTooltip" style="display:none;">
+  <span class="tip-sym"></span>
+  <span class="tip-name"></span>
+  <span class="tip-deg"></span>
+</div>
+<div class="container">
+
+  <!-- 1. HEADER -->
+  <div class="header-card">
+    <h1>Niebo Teraz</h1>
+    <div class="subtitle">Aktualne Pozycje Planet · Dwuzodiakalny Widok</div>
+    <div class="accent-bar"></div>
+    <div class="header-controls">
+      <div class="engine-badge"><span class="dot"></span>Swiss Ephemeris · Zodiak Naturalny</div>
+      <div class="premium-badge">⭐ Wersja Rozszerzona</div>
+      <button class="tb" id="darkToggle" style="font-size:14px;padding:3px 10px;" title="Tryb ciemny">🌙</button>
+      <button class="tb gold" id="modeToggle">🌍 Wersja Podstawowa</button>
+    </div>
+  </div>
+
+  <!-- 2. NATAL INPUT CARD (PREMIUM) -->
+  <div class="natal-card premium-feature" id="natalCard">
+    <div class="natal-card-header" id="natalToggle">
+      <div class="natal-header-left">
+        <span style="font-size:14px;color:rgba(255,220,120,.85);">⭐</span>
+        <span class="natal-title">Dane Urodzenia · Mapa Natalna</span>
+      </div>
+      <span class="natal-chevron open" id="natalChevron">▼</span>
+    </div>
+    <div class="natal-body" id="natalBody">
+      <div class="natal-saved-info" id="natalSavedInfo"></div>
+      <div class="natal-fields">
+        <div class="natal-field">
+          <label>Imię / Etykieta</label>
+          <input type="text" id="natalName" placeholder="np. Jan Kowalski">
+        </div>
+        <div class="natal-field">
+          <label>Data Urodzenia</label>
+          <input type="date" id="natalDate">
+        </div>
+        <div class="natal-field">
+          <label>Godzina Urodzenia</label>
+          <input type="time" id="natalTime" value="12:00">
+        </div>
+        <div class="natal-field">
+          <label>Strefa Czasowa (UTC±)</label>
+          <input type="number" id="natalUtc" value="1" min="-12" max="14" step="0.5" placeholder="+1 (Warszawa)">
+        </div>
+      </div>
+      <div class="natal-btn-row">
+        <button class="tb gold-solid" id="saveNatalBtn">⭐ Zapisz dane urodzenia</button>
+        <button class="tb clear-natal" id="clearNatalBtn">✕ Wyczyść</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. ZODIAC WHEEL -->
+  <div class="wheel-card">
+    <div class="wheel-card-header">
+      <span style="font-size:14px;color:rgba(255,255,255,.85)">◯</span>
+      <span class="card-title" id="wheelTitle">Koło Zodiaku · Zodiak Naturalny</span>
+    </div>
+    <div class="wheel-body">
+      <svg id="horoscope-wheel" viewBox="0 0 520 520" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <div class="wheel-footer">
+      <div class="moon-bar" id="moonBar">
+        <span class="moon-emoji" id="moonEmoji">🌑</span>
+        <div class="moon-info">
+          <span class="moon-name" id="moonName">—</span>
+          <div class="moon-track"><div class="moon-fill" id="moonFill"></div></div>
+        </div>
+        <span class="moon-pct" id="moonPct">—</span>
+      </div>
+    </div>
+    <div class="wheel-legend premium-feature" id="wheelLegend" style="display:none;">
+      <div class="wl-item"><div class="wl-dot" style="background:#4a80c0;"></div> Tranzyt (zewnętrzny pierścień)</div>
+      <div class="wl-item"><div class="wl-dot" style="background:#c0a040;border:2px dashed #c0a040;background:transparent;"></div> Natalne (wewnętrzny pierścień)</div>
+    </div>
+    <div class="aspect-legend" id="aspectLegend"></div>
+  </div>
+
+  <!-- 4. ACTIVE TRANSITS CARD (PREMIUM) -->
+  <div class="transits-card premium-feature" id="activeTransitsCard">
+    <div class="transits-card-header">
+      <span style="font-size:14px;color:rgba(255,255,255,.85)">⚡</span>
+      <span class="card-title">Aktywne Tranzuty do Natalnych</span>
+    </div>
+    <div class="transits-body" id="transitsBody">
+      <div class="no-natal-msg">Wprowadź dane urodzenia, aby zobaczyć aktywne tranzuty planet do Twojej mapy natalnej.</div>
+    </div>
+  </div>
+
+  <!-- 5. TIME NAVIGATION -->
+  <div class="time-card">
+    <div class="time-card-header">
+      <span class="tp-title">⏱ Nawigacja Czasowa</span>
+      <div class="live-badge">
+        <span class="live-dot" id="liveDot"></span>
+        <span id="liveLabel">NA ŻYWO</span>
+      </div>
+    </div>
+    <div class="time-body">
+      <div class="date-display">
+        <div id="current-date">—</div>
+        <span class="mode-badge" id="modeBadge">TRYB HISTORYCZNY</span>
+      </div>
+      <div class="step-row">
+        <div class="step-group">
+          <span class="step-label">◀ Cofnij</span>
+          <button class="tb" data-step="-1" data-unit="week">Tydzień</button>
+          <button class="tb" data-step="-1" data-unit="day">Dzień</button>
+          <button class="tb" data-step="-1" data-unit="hour">Godzinę</button>
+        </div>
+        <div class="step-group">
+          <span class="step-label">Naprzód ▶</span>
+          <button class="tb" data-step="1" data-unit="hour">Godzinę</button>
+          <button class="tb" data-step="1" data-unit="day">Dzień</button>
+          <button class="tb" data-step="1" data-unit="week">Tydzień</button>
+        </div>
+      </div>
+      <div class="picker-row">
+        <span class="step-label">Przejdź do:</span>
+        <input type="date" class="date-input" id="datePicker">
+        <input type="time" class="date-input time-input" id="timePicker" value="12:00">
+        <button class="tb primary" id="jumpBtn">Skocz ↵</button>
+        <button class="tb danger" id="nowBtn">⟳ Teraz</button>
+      </div>
+      <div class="anim-row">
+        <span class="step-label">Animacja:</span>
+        <button class="tb" id="animBtn">▶ Odtwórz</button>
+        <button class="tb" data-animspeed="0.042" data-unit="day">1 godz./s</button>
+        <button class="tb" data-animspeed="1" data-unit="day">1 dzień/s</button>
+        <button class="tb active-anim" data-animspeed="7" data-unit="day">1 tydz./s</button>
+        <button class="tb" data-animspeed="30" data-unit="day">1 mies./s</button>
+        <button class="tb" data-animspeed="365" data-unit="day">1 rok/s</button>
+        <button class="tb" data-animspeed="-7" data-unit="day">◀ Wstecz</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. PLANET TABLE -->
+  <div class="table-card">
+    <div class="table-card-header">
+      <span style="font-size:14px;color:rgba(255,255,255,.85)">♃</span>
+      <span class="card-title">Pozycje Planet (Tranzyt)</span>
+    </div>
+    <table class="planet-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Planeta</th>
+          <th>Znak</th>
+          <th></th>
+          <th style="text-align:right">Stopnie</th>
+        </tr>
+      </thead>
+      <tbody id="planet-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- 7. 30-DAY TRANSIT CALENDAR (PREMIUM) -->
+  <div class="calendar-card premium-feature" id="calendarCard">
+    <div class="calendar-card-header" id="calendarToggle">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:14px;color:rgba(210,180,255,.85);">📅</span>
+        <span class="calendar-title">Kalendarz Tranzutów · 30 dni</span>
+      </div>
+      <span class="calendar-chevron" id="calendarChevron">▼</span>
+    </div>
+    <div class="calendar-body hidden" id="calendarBody">
+      <div class="cal-no-natal" id="calNoNatal">Wprowadź dane urodzenia, aby wygenerować kalendarz tranzutów planet do Twojej mapy natalnej.</div>
+    </div>
+  </div>
+
+</div>
+<footer>Swiss Ephemeris (Astrodienst AG) · Zodiak Naturalny · Wersja Rozszerzona · astrologiaewolucyjna.com</footer>
+
+<script type="module">
+// ── SWISS EPHEMERIS LOAD ──────────────────────────────────────
+let SwissEph;
+try {
+  SwissEph = (await import('https://cdn.jsdelivr.net/gh/prolaxu/swisseph-wasm@main/src/swisseph.js')).default;
+} catch(e1) {
+  console.warn('Primary CDN failed, trying unpkg...', e1);
+  try {
+    SwissEph = (await import('https://unpkg.com/swisseph@latest/dist/swisseph.mjs')).default;
+  } catch(e2) {
+    console.error('Both CDNs failed:', e1, e2);
+    document.getElementById('loadingMsg').innerHTML = `
+      <div style="text-align:center;max-width:400px;">
+        <div style="font-size:24px;margin-bottom:10px;">⚠</div>
+        <div style="font-size:14px;margin-bottom:15px;">Nie można załadować Swiss Ephemeris</div>
+        <div style="font-size:11px;color:#90b0d8;margin-bottom:15px;">${e1.message || 'Błąd połączenia z CDN'}</div>
+        <button onclick="location.reload()" style="background:#2d5a8e;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:Raleway,sans-serif;font-size:12px;font-weight:600;">Spróbuj ponownie</button>
+      </div>`;
+    throw e2;
+  }
+}
+
+const DEG=Math.PI/180, RAD=180/Math.PI;
+function norm(d){return((d%360)+360)%360;}
+
+// ── ZNAKI ZODIAKU ─────────────────────────────────────────────
+const SIGNS=[
+  {name:'Baran',      genitive:'Barana',     symbol:'♈',color:'#c0392b'},
+  {name:'Byk',        genitive:'Byka',       symbol:'♉',color:'#27ae60'},
+  {name:'Bliźnięta',  genitive:'Bliźniąt',   symbol:'♊',color:'#c8961a'},
+  {name:'Rak',        genitive:'Raka',       symbol:'♋',color:'#2980b9'},
+  {name:'Lew',        genitive:'Lwa',        symbol:'♌',color:'#d35400'},
+  {name:'Panna',      genitive:'Panny',      symbol:'♍',color:'#16a085'},
+  {name:'Waga',       genitive:'Wagi',       symbol:'♎',color:'#8e44ad'},
+  {name:'Skorpion',   genitive:'Skorpiona',  symbol:'♏',color:'#922b21'},
+  {name:'Strzelec',   genitive:'Strzelca',   symbol:'♐',color:'#ca6f1e'},
+  {name:'Koziorożec', genitive:'Koziorożca', symbol:'♑',color:'#566573'},
+  {name:'Wodnik',     genitive:'Wodnika',    symbol:'♒',color:'#1a5276'},
+  {name:'Ryby',       genitive:'Ryb',        symbol:'♓',color:'#6c3483'},
+];
+function sign(lon){const i=Math.floor(lon/30),d=lon%30,dg=Math.floor(d),mn=Math.floor((d-dg)*60);return{...SIGNS[i],deg:dg,min:mn};}
+
+// ── PLANETY ───────────────────────────────────────────────────
+const PLANETS=[
+  {name:'Słońce',                   symbol:'☉',color:'#c47c0a',sweId:0},
+  {name:'Księżyc',                  symbol:'☽',color:'#2471a3',sweId:1},
+  {name:'Merkury',                  symbol:'☿',color:'#707b8a',sweId:2},
+  {name:'Wenus',                    symbol:'♀',color:'#1e8449',sweId:3},
+  {name:'Mars',                     symbol:'♂',color:'#c0392b',sweId:4},
+  {name:'Jowisz',                   symbol:'♃',color:'#9a6b00',sweId:5},
+  {name:'Saturn',                   symbol:'♄',color:'#7d6608',sweId:6},
+  {name:'Uran',                     symbol:'⛢',color:'#0e7490',sweId:7},
+  {name:'Neptun',                   symbol:'♆',color:'#1a3a7e',sweId:8},
+  {name:'Pluton',                   symbol:'♇',color:'#6d4c41',sweId:9},
+  {name:'Północny Węzeł Księżyca',  symbol:'☊',color:'#9b7200',sweId:11,isNode:true},
+  {name:'Południowy Węzeł Księżyca',symbol:'☋',color:'#9b7200',sweId:11,isNode:true,isSouth:true},
+];
+
+// ── SWISS EPHEMERIS ENGINE ────────────────────────────────────
+let sweEngine=null;
+async function initSwe(){
+  const swe=new SwissEph();
+  await swe.initSwissEph();
+  sweEngine=swe;
+}
+
+function calcData(dateObj){
+  if(!sweEngine) return PLANETS.map(()=>null);
+  const jd=sweEngine.julday(
+    dateObj.getUTCFullYear(), dateObj.getUTCMonth()+1,
+    dateObj.getUTCDate(),
+    dateObj.getUTCHours()+dateObj.getUTCMinutes()/60+dateObj.getUTCSeconds()/3600
+  );
+  const FLAG=(sweEngine.SEFLG_SWIEPH||2)|(sweEngine.SEFLG_SPEED||256);
+  return PLANETS.map(p=>{
+    try{
+      const r=sweEngine.calc_ut(jd, p.sweId, FLAG);
+      let lon=norm(((r[0]%360)+360)%360);
+      if(p.isSouth) lon=norm(lon+180);
+      const retrograde=r[3]<0;
+      return {lon, retrograde: p.isSouth ? true : retrograde};
+    }catch(e){return null;}
+  });
+}
+
+// ── FAZA KSIĘŻYCA ─────────────────────────────────────────────
+function moonPhase(data){
+  const sunLon=data[0]?.lon, moonLon=data[1]?.lon;
+  if(sunLon==null||moonLon==null) return null;
+  const angle=((moonLon-sunLon)%360+360)%360;
+  let name,emoji;
+  if(angle<22.5)       {name='Nów';               emoji='🌑';}
+  else if(angle<67.5)  {name='Przybywający Sierp'; emoji='🌒';}
+  else if(angle<112.5) {name='Pierwsza Kwadra';    emoji='🌓';}
+  else if(angle<157.5) {name='Przybywający Garb';  emoji='🌔';}
+  else if(angle<202.5) {name='Pełnia';             emoji='🌕';}
+  else if(angle<247.5) {name='Ubywający Garb';     emoji='🌖';}
+  else if(angle<292.5) {name='Ostatnia Kwadra';    emoji='🌗';}
+  else if(angle<337.5) {name='Ubywający Sierp';    emoji='🌘';}
+  else                 {name='Nów';               emoji='🌑';}
+  return{name,emoji,illum:Math.round((1-Math.cos(angle*DEG))/2*100)};
+}
+
+// ── ASPEKTY ───────────────────────────────────────────────────
+const ASPECT_DEFS=[
+  {name:'Koniunkcja',angle:  0,orb:8,color:'rgba(100,100,200,0.55)',dash:'',    width:1.5},
+  {name:'Opozycja',  angle:180,orb:8,color:'rgba(180,40,40,0.55)',  dash:'',    width:1.5},
+  {name:'Trygon',    angle:120,orb:7,color:'rgba(40,160,80,0.55)',  dash:'',    width:1.4},
+  {name:'Kwadratura',angle: 90,orb:7,color:'rgba(200,50,50,0.50)',  dash:'5,3', width:1.3},
+  {name:'Sekstyl',   angle: 60,orb:5,color:'rgba(40,120,200,0.50)', dash:'3,2', width:1.2},
+  {name:'Półkwadrat',angle: 45,orb:2,color:'rgba(180,100,40,0.40)', dash:'2,3', width:0.9},
+  {name:'Kwinkuńks', angle:150,orb:2,color:'rgba(160,40,160,0.40)', dash:'4,3', width:0.9},
+];
+
+function calcAspects(data){
+  const aspects=[];
+  for(let i=0;i<data.length;i++){
+    if(!data[i]||PLANETS[i].isNode) continue;
+    for(let j=i+1;j<data.length;j++){
+      if(!data[j]||PLANETS[j].isNode) continue;
+      let diff=Math.abs(data[i].lon-data[j].lon);
+      if(diff>180) diff=360-diff;
+      for(const asp of ASPECT_DEFS){
+        if(Math.abs(diff-asp.angle)<=asp.orb){aspects.push({p1:i,p2:j,asp});break;}
+      }
+    }
+  }
+  return aspects;
+}
+
+// ── ASPEKTY TRANZYT → NATALNE ─────────────────────────────────
+function calcTransitNatalAspects(transitData, natalPositions){
+  if(!natalPositions) return [];
+  const aspects=[];
+  transitData.forEach((tp,ti)=>{
+    if(!tp||PLANETS[ti].isNode) return;
+    natalPositions.forEach((np,ni)=>{
+      if(!np) return;
+      let diff=Math.abs(tp.lon-np.lon);
+      if(diff>180) diff=360-diff;
+      for(const asp of ASPECT_DEFS){
+        const orb=Math.abs(diff-asp.angle);
+        if(orb<=asp.orb){
+          aspects.push({ti,ni,asp,orb});
+          break;
+        }
+      }
+    });
+  });
+  return aspects.sort((a,b)=>a.orb-b.orb);
+}
+
+// ── KOŁO ZODIAKU ─────────────────────────────────────────────
+function drawWheel(data, natalData){
+  const svg=document.getElementById('horoscope-wheel');
+  const cx=260,cy=260,rO=244,rB=208,rI=172;
+  const rNatSep=128, rNat=108, rNatInner=82;
+  const isPremium=!document.body.classList.contains('basic-mode');
+  const hasNatal=isPremium && natalData && natalData.some(n=>n);
+  svg.innerHTML='';
+  const ns='http://www.w3.org/2000/svg';
+  const mk=(tag,attrs,txt)=>{const e=document.createElementNS(ns,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);if(txt!==undefined)e.textContent=txt;return e;};
+  const dark=document.body.classList.contains('dark');
+
+  // Background gradient
+  const defs=mk('defs',{});
+  const gr=mk('radialGradient',{id:'bg',cx:'50%',cy:'50%',r:'50%'});
+  gr.appendChild(mk('stop',{offset:'0%','stop-color':dark?'#131c32':'#eef2fb'}));
+  gr.appendChild(mk('stop',{offset:'100%','stop-color':dark?'#0a1020':'#dde4f5'}));
+  if(hasNatal){
+    const grNat=mk('radialGradient',{id:'bgNat',cx:'50%',cy:'50%',r:'50%'});
+    grNat.appendChild(mk('stop',{offset:'0%','stop-color':dark?'#1a1505':'#fdf8e8'}));
+    grNat.appendChild(mk('stop',{offset:'100%','stop-color':dark?'#120f02':'#f8f0d8'}));
+    defs.appendChild(grNat);
+  }
+  defs.appendChild(gr);
+  svg.appendChild(defs);
+  svg.appendChild(mk('circle',{cx,cy,r:rO,fill:'url(#bg)',stroke:dark?'#1e2d4a':'#b0bcd8','stroke-width':'1.5'}));
+
+  // Zodiac segments
+  for(let i=0;i<12;i++){
+    const a1=(180-i*30)*DEG,a2=(180-(i+1)*30)*DEG;
+    const x1=cx+rB*Math.cos(a1),y1=cy+rB*Math.sin(a1);
+    const x2=cx+rO*Math.cos(a1),y2=cy+rO*Math.sin(a1);
+    const x3=cx+rO*Math.cos(a2),y3=cy+rO*Math.sin(a2);
+    const x4=cx+rB*Math.cos(a2),y4=cy+rB*Math.sin(a2);
+    svg.appendChild(mk('path',{
+      d:`M ${x1} ${y1} L ${x2} ${y2} A ${rO} ${rO} 0 0 1 ${x3} ${y3} L ${x4} ${y4} A ${rB} ${rB} 0 0 0 ${x1} ${y1}`,
+      fill:SIGNS[i].color+'22',stroke:dark?'#1e2d4a':'#b8c4dc','stroke-width':'0.5'
+    }));
+    const ma=(180-(i+0.5)*30)*DEG,rs=(rB+rO)/2;
+    svg.appendChild(mk('text',{
+      x:cx+rs*Math.cos(ma),y:cy+rs*Math.sin(ma),
+      'text-anchor':'middle','dominant-baseline':'central',
+      fill:SIGNS[i].color,'font-size':'18','font-weight':'bold','font-family':'serif'
+    },SIGNS[i].symbol));
+  }
+
+  svg.appendChild(mk('circle',{cx,cy,r:rB,fill:'none',stroke:dark?'#1e2d4a':'#a8b8d8','stroke-width':'1.2'}));
+  svg.appendChild(mk('circle',{cx,cy,r:rI,fill:dark?'#0d1626':'#f8faff',stroke:dark?'#182436':'#b8c8e0','stroke-width':'1'}));
+
+  // Degree ticks
+  for(let i=0;i<360;i+=5){
+    const a=(180-i)*DEG,r1=i%30===0?rI-14:i%10===0?rI-8:rI-4;
+    svg.appendChild(mk('line',{
+      x1:cx+rI*Math.cos(a),y1:cy+rI*Math.sin(a),
+      x2:cx+r1*Math.cos(a),y2:cy+r1*Math.sin(a),
+      stroke:i%30===0?(dark?'#4060a0':'#6070a0'):(dark?'#1e2d4a':'#b0bcd8'),
+      'stroke-width':i%30===0?'1.4':'0.6'
+    }));
+  }
+  for(let i=0;i<12;i++){
+    const a=(180-i*30)*DEG;
+    svg.appendChild(mk('line',{
+      x1:cx+rI*Math.cos(a),y1:cy+rI*Math.sin(a),
+      x2:cx+rB*Math.cos(a),y2:cy+rB*Math.sin(a),
+      stroke:dark?'#2a3d60':'#8898c0','stroke-width':'0.9'
+    }));
+  }
+
+  // Transit aspect lines
+  const aspects=calcAspects(data);
+  const rAsp=rI-4;
+  aspects.forEach(({p1,p2,asp})=>{
+    if(!data[p1]||!data[p2]) return;
+    const a1=(180-data[p1].lon)*DEG,a2=(180-data[p2].lon)*DEG;
+    const ln=mk('line',{
+      x1:cx+rAsp*Math.cos(a1),y1:cy+rAsp*Math.sin(a1),
+      x2:cx+rAsp*Math.cos(a2),y2:cy+rAsp*Math.sin(a2),
+      stroke:asp.color,'stroke-width':String(asp.width)
+    });
+    if(asp.dash) ln.setAttribute('stroke-dasharray',asp.dash);
+    svg.appendChild(ln);
+  });
+
+  // ── NATAL INNER RING ──────────────────────────────────────
+  if(hasNatal){
+    // Natal inner background
+    svg.appendChild(mk('circle',{cx,cy,r:rNatSep,fill:'url(#bgNat)',stroke:dark?'#5a4010':'#c8a040','stroke-width':'1.2','stroke-dasharray':'4,3'}));
+    svg.appendChild(mk('circle',{cx,cy,r:rNatInner,fill:dark?'#0b1020':'#eef2fb',stroke:dark?'#1a2030':'#c0cce0','stroke-width':'0.8'}));
+
+    // Natal planet dots (tick marks on separator circle)
+    natalData.forEach((np,idx)=>{
+      if(!np) return;
+      const angle=(180-np.lon)*DEG;
+      const x1=cx+rNatSep*Math.cos(angle);
+      const y1=cy+rNatSep*Math.sin(angle);
+      const x2=cx+(rNatSep-8)*Math.cos(angle);
+      const y2=cy+(rNatSep-8)*Math.sin(angle);
+      svg.appendChild(mk('line',{x1,y1,x2,y2,stroke:'#c8a040','stroke-width':'1.5','opacity':'0.6'}));
+    });
+
+    // Natal planet symbols (inner ring)
+    natalData.forEach((np,idx)=>{
+      if(!np) return;
+      const angle=(180-np.lon)*DEG;
+      const dotX=cx+rNat*Math.cos(angle),dotY=cy+rNat*Math.sin(angle);
+
+      const hit=mk('circle',{cx:dotX,cy:dotY,r:'10',fill:'transparent','pointer-events':'all',cursor:'pointer'});
+      const dot=mk('text',{
+        x:dotX,y:dotY,
+        'text-anchor':'middle','dominant-baseline':'central',
+        fill:dark?PLANETS[idx].color+'aa':PLANETS[idx].color+'99',
+        'font-size':PLANETS[idx].isNode?'13':'12',
+        'font-family':'serif',
+        'font-weight':'bold',
+        'pointer-events':'none',
+        'opacity':'0.75',
+        'filter':'drop-shadow(0 1px 1px rgba(0,0,0,0.2))'
+      },PLANETS[idx].symbol);
+
+      // Natal tooltip
+      const s=sign(np.lon);
+      const degMin=`${s.deg}°${String(s.min).padStart(2,'0')}'`;
+      hit.addEventListener('mouseenter',(e)=>{
+        const tip=document.getElementById('planetTooltip');
+        tip.querySelector('.tip-sym').textContent=PLANETS[idx].symbol;
+        tip.querySelector('.tip-sym').style.color=PLANETS[idx].color;
+        tip.querySelector('.tip-name').textContent='NATAL: '+PLANETS[idx].name+' w '+s.genitive;
+        tip.querySelector('.tip-deg').textContent=degMin;
+        tip.style.display='flex';
+        const rect=svg.getBoundingClientRect();
+        const scaleX=rect.width/520, scaleY=rect.height/520;
+        const px=rect.left+dotX*scaleX, py=rect.top+dotY*scaleY;
+        tip.style.left=px+'px';
+        tip.style.top=(dotY>260?py-44:py+14)+'px';
+        tip.style.transform='translateX(-50%)';
+      });
+      hit.addEventListener('mouseleave',()=>{document.getElementById('planetTooltip').style.display='none';});
+      svg.appendChild(hit);
+      svg.appendChild(dot);
+    });
+  }
+
+  // Centre — moon phase
+  const phase=moonPhase(data);
+  svg.appendChild(mk('circle',{cx,cy,r:hasNatal?28:30,fill:dark?'#0d1626':'#e8eef8',stroke:dark?'#1e2d4a':'#c0cce0','stroke-width':'1'}));
+  if(phase){
+    svg.appendChild(mk('text',{x:cx,y:cy-8,'text-anchor':'middle','dominant-baseline':'central','font-size':'18'},phase.emoji));
+    svg.appendChild(mk('text',{x:cx,y:cy+11,'text-anchor':'middle','dominant-baseline':'central',
+      fill:dark?'#6080b0':'#4a5a80','font-size':'8','font-weight':'600','font-family':'Raleway,sans-serif'},`${phase.illum}%`));
+  }
+
+  // ── TRANSIT PLANETS (outer ring) ─────────────────────────
+  data.forEach((p,idx)=>{
+    if(!p) return;
+    const angle=(180-p.lon)*DEG;
+    const dotX=cx+rI*Math.cos(angle),dotY=cy+rI*Math.sin(angle);
+
+    const hit=mk('circle',{cx:dotX,cy:dotY,r:'12',fill:'transparent','pointer-events':'all',cursor:'pointer'});
+    const dot=mk('text',{
+      x:dotX,y:dotY,
+      'text-anchor':'middle','dominant-baseline':'central',
+      fill:PLANETS[idx].color,
+      'font-size':PLANETS[idx].isNode?'18':'16',
+      'font-family':'serif',
+      'font-weight':'bold',
+      'pointer-events':'none',
+      'filter':'drop-shadow(0 1px 2px rgba(0,0,0,0.3))'
+    },PLANETS[idx].symbol);
+
+    const sym=PLANETS[idx].symbol, pname=PLANETS[idx].name;
+    const s=sign(p.lon);
+    const degMin=`${s.deg}°${String(s.min).padStart(2,'0')}'`;
+    hit.addEventListener('mouseenter',(e)=>{
+      const tip=document.getElementById('planetTooltip');
+      tip.querySelector('.tip-sym').textContent=sym;
+      tip.querySelector('.tip-sym').style.color=PLANETS[idx].color;
+      tip.querySelector('.tip-name').textContent=pname+' w Znaku '+s.genitive;
+      tip.querySelector('.tip-deg').textContent=degMin;
+      tip.style.display='flex';
+      const rect=svg.getBoundingClientRect();
+      const scaleX=rect.width/520, scaleY=rect.height/520;
+      const px=rect.left+dotX*scaleX, py=rect.top+dotY*scaleY;
+      const above=dotY>260;
+      tip.style.left=px+'px';
+      tip.style.top=(above ? py-44 : py+14)+'px';
+      tip.style.transform='translateX(-50%)';
+    });
+    hit.addEventListener('mouseleave',()=>{
+      document.getElementById('planetTooltip').style.display='none';
+    });
+    svg.appendChild(hit);
+    svg.appendChild(dot);
+  });
+
+  svg.appendChild(mk('circle',{cx,cy,r:rO,fill:'none',stroke:dark?'#2a3d60':'#8898c0','stroke-width':'1.5'}));
+
+  // Update wheel legend
+  const legendEl=document.getElementById('wheelLegend');
+  if(legendEl) legendEl.style.display=hasNatal?'flex':'none';
+
+  // Update wheel title
+  const wheelTitle=document.getElementById('wheelTitle');
+  if(wheelTitle) wheelTitle.textContent=hasNatal?'Koło Zodiaku · Tranzyt (zew.) + Natalne (wew.)':'Koło Zodiaku · Zodiak Naturalny';
+}
+
+// ── TABELA PLANET ─────────────────────────────────────────────
+function renderList(data){
+  const tbody=document.getElementById('planet-tbody');
+  if(!tbody) return;
+  tbody.innerHTML='';
+  data.forEach((p,i)=>{
+    if(!p) return;
+    const s=sign(p.lon),ms=String(s.min).padStart(2,'0');
+    const tr=document.createElement('tr');
+    tr.style.animationDelay=(i*0.04)+'s';
+    tr.innerHTML=`
+      <td class="td-sym"><span style="color:${PLANETS[i].color}">${PLANETS[i].symbol}</span></td>
+      <td class="td-name">${PLANETS[i].name}</td>
+      <td><div class="td-sign"><span class="sign-sym" style="color:${s.color}">${s.symbol}</span><span class="sign-nm">${s.name}</span></div></td>
+      <td class="td-rx">${p.retrograde?'<span class="retro">Rx</span>':''}</td>
+      <td class="td-deg"><span class="deg-pill">${s.deg}°${ms}'</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── AKTYWNE TRANZUTY ──────────────────────────────────────────
+function renderActiveTransits(transitData, natalPositions){
+  const body=document.getElementById('transitsBody');
+  if(!body) return;
+  if(!natalPositions || !natalPositions.some(n=>n)){
+    body.innerHTML='<div class="no-natal-msg">Wprowadź dane urodzenia, aby zobaczyć aktywne tranzuty planet do Twojej mapy natalnej.</div>';
+    return;
+  }
+  const aspects=calcTransitNatalAspects(transitData, natalPositions);
+  if(aspects.length===0){
+    body.innerHTML='<div class="no-natal-msg">Brak aktywnych tranzutów w tym momencie.</div>';
+    return;
+  }
+  body.innerHTML='';
+  aspects.forEach(({ti,ni,asp,orb},idx)=>{
+    const item=document.createElement('div');
+    item.className='transit-item';
+    item.style.animationDelay=(idx*0.04)+'s';
+    const aspColor=asp.color.replace(/[\d.]+\)/,'1)');
+    const orbStr=orb.toFixed(2)+'°';
+    item.innerHTML=`
+      <span class="tr-sym" style="color:${PLANETS[ti].color}">${PLANETS[ti].symbol}</span>
+      <span class="tr-name">${PLANETS[ti].name}</span>
+      <span class="tr-asp-badge">
+        <span class="tr-asp-dot" style="background:${aspColor}"></span>
+        ${asp.name}
+      </span>
+      <div class="tr-natal">
+        <span class="tr-natal-sym" style="color:${PLANETS[ni].color}">${PLANETS[ni].symbol}</span>
+        <span class="tr-natal-name">natal ${PLANETS[ni].name}</span>
+      </div>
+      <span class="tr-orb">${orbStr}</span>`;
+    body.appendChild(item);
+  });
+}
+
+// ── 30-DNI KALENDARZ ─────────────────────────────────────────
+function formatPolishDate(d){
+  const months=['stycznia','lutego','marca','kwietnia','maja','czerwca',
+    'lipca','sierpnia','września','października','listopada','grudnia'];
+  return `${d.getUTCDate()} ${months[d.getUTCMonth()]}`;
+}
+
+let calendarBuilt=false;
+let calendarNatalKey='';
+
+function buildCalendar(startDate, natalPositions){
+  const body=document.getElementById('calendarBody');
+  if(!body) return;
+
+  const noNatal=document.getElementById('calNoNatal');
+  if(!natalPositions || !natalPositions.some(n=>n)){
+    if(noNatal) noNatal.style.display='block';
+    // remove old items
+    [...body.children].forEach(c=>{if(c!==noNatal) c.remove();});
+    return;
+  }
+  if(noNatal) noNatal.style.display='none';
+
+  // Check if we need to rebuild
+  const key=startDate.toISOString().slice(0,10)+'_'+calendarNatalKey;
+  if(calendarBuilt && body._calKey===key) return;
+  body._calKey=key;
+  calendarBuilt=true;
+
+  // Show loading
+  body.innerHTML='<div class="cal-loading">⏳ Obliczanie kalendarz tranzutów…</div>';
+
+  // Defer heavy computation slightly so UI can paint first
+  setTimeout(()=>{
+    const events=[];
+    const start=new Date(startDate);
+    start.setUTCHours(12,0,0,0);
+
+    for(let d=0;d<30;d++){
+      const date=new Date(start.getTime()+d*86400000);
+      const transitData=calcData(date);
+      transitData.forEach((tp,ti)=>{
+        if(!tp||PLANETS[ti].isNode) return;
+        natalPositions.forEach((np,ni)=>{
+          if(!np) return;
+          let diff=Math.abs(tp.lon-np.lon);
+          if(diff>180) diff=360-diff;
+          for(const asp of ASPECT_DEFS){
+            const orb=Math.abs(diff-asp.angle);
+            if(orb<1.0){
+              events.push({date:new Date(date),ti,ni,asp,orb});
+              break;
+            }
+          }
+        });
+      });
+    }
+
+    body.innerHTML='';
+
+    if(events.length===0){
+      const msg=document.createElement('div');
+      msg.className='cal-no-natal';
+      msg.textContent='Brak dokładnych tranzutów (orba < 1°) w ciągu najbliższych 30 dni.';
+      body.appendChild(msg);
+      return;
+    }
+
+    // Group by date
+    const byDate=new Map();
+    events.forEach(ev=>{
+      const key=ev.date.toISOString().slice(0,10);
+      if(!byDate.has(key)) byDate.set(key,[]);
+      byDate.get(key).push(ev);
+    });
+
+    [...byDate.entries()].sort(([a],[b])=>a.localeCompare(b)).forEach(([dateKey,evts],gi)=>{
+      const dateObj=new Date(dateKey+'T12:00:00Z');
+      evts.forEach((ev,ei)=>{
+        const item=document.createElement('div');
+        item.className='cal-item';
+        item.style.animationDelay=((gi*3+ei)*0.03)+'s';
+        item.innerHTML=`
+          <span class="cal-date">📅 ${formatPolishDate(dateObj)}</span>
+          <span class="cal-icon" style="color:${PLANETS[ev.ti].color}">${PLANETS[ev.ti].symbol}</span>
+          <span class="cal-desc">
+            <strong style="color:${PLANETS[ev.ti].color}">${PLANETS[ev.ti].name}</strong>
+            ${ev.asp.name}
+            natal <strong style="color:${PLANETS[ev.ni].color}">${PLANETS[ev.ni].symbol} ${PLANETS[ev.ni].name}</strong>
+          </span>
+          <span class="cal-orb-pill">${ev.orb.toFixed(2)}°</span>`;
+        body.appendChild(item);
+      });
+    });
+  }, 80);
+}
+
+// ── NATAL DATA MANAGEMENT ─────────────────────────────────────
+let natalPositions=null;
+
+function loadNatalFromStorage(){
+  try{
+    const raw=localStorage.getItem('natal_data_premium');
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){return null;}
+}
+
+function saveNatalToStorage(obj){
+  try{localStorage.setItem('natal_data_premium',JSON.stringify(obj));}catch(e){}
+}
+
+function clearNatalStorage(){
+  try{localStorage.removeItem('natal_data_premium');}catch(e){}
+}
+
+function getNatalUTCDate(birthDate,birthTime,utcOffset){
+  const [y,m,d]=birthDate.split('-').map(Number);
+  const [h,min]=(birthTime||'12:00').split(':').map(Number);
+  const localMs=Date.UTC(y,m-1,d,h,min);
+  const utcMs=localMs-utcOffset*3600000;
+  return new Date(utcMs);
+}
+
+function applyNatalData(stored){
+  if(!stored||!stored.birthDate) return;
+  // Populate fields
+  document.getElementById('natalName').value=stored.name||'';
+  document.getElementById('natalDate').value=stored.birthDate||'';
+  document.getElementById('natalTime').value=stored.birthTime||'12:00';
+  document.getElementById('natalUtc').value=stored.utcOffset!=null?stored.utcOffset:1;
+
+  // Calculate natal positions
+  const birthUTC=getNatalUTCDate(stored.birthDate,stored.birthTime||'12:00',stored.utcOffset||0);
+  natalPositions=calcData(birthUTC);
+  calendarNatalKey=stored.birthDate+'_'+(stored.birthTime||'12:00')+'_'+(stored.utcOffset||0);
+
+  // Show saved info
+  const info=document.getElementById('natalSavedInfo');
+  const s=sign(natalPositions[0]?.lon||0);
+  info.textContent=`✓ Zapisano: ${stored.name||'Brak imienia'} · ${stored.birthDate} ${stored.birthTime} UTC${stored.utcOffset>=0?'+':''}${stored.utcOffset} · ☉ ${s.name}`;
+  info.classList.add('visible');
+}
+
+function saveNatal(){
+  const name=document.getElementById('natalName').value.trim();
+  const birthDate=document.getElementById('natalDate').value;
+  const birthTime=document.getElementById('natalTime').value||'12:00';
+  const utcOffset=parseFloat(document.getElementById('natalUtc').value)||0;
+  if(!birthDate){alert('Podaj datę urodzenia!');return;}
+  const stored={name,birthDate,birthTime,utcOffset};
+  saveNatalToStorage(stored);
+  applyNatalData(stored);
+  calendarBuilt=false;
+  render(currentDate);
+}
+
+function clearNatal(){
+  clearNatalStorage();
+  natalPositions=null;
+  calendarNatalKey='';
+  calendarBuilt=false;
+  document.getElementById('natalName').value='';
+  document.getElementById('natalDate').value='';
+  document.getElementById('natalTime').value='12:00';
+  document.getElementById('natalUtc').value='1';
+  document.getElementById('natalSavedInfo').classList.remove('visible');
+  render(currentDate);
+}
+
+// ── PREMIUM / BASIC MODE TOGGLE ───────────────────────────────
+function isPremiumMode(){
+  return localStorage.getItem('app_mode_premium')!=='false';
+}
+
+function applyMode(premium){
+  document.body.classList.toggle('basic-mode',!premium);
+  const btn=document.getElementById('modeToggle');
+  if(premium){
+    btn.textContent='🌍 Wersja Podstawowa';
+    btn.classList.remove('active');
+  }else{
+    btn.textContent='⭐ Wersja Rozszerzona';
+    btn.classList.add('active');
+  }
+  try{localStorage.setItem('app_mode_premium',premium?'true':'false');}catch(e){}
+}
+
+document.getElementById('modeToggle').addEventListener('click',()=>{
+  const currently=!document.body.classList.contains('basic-mode');
+  applyMode(!currently);
+  render(currentDate);
+});
+
+// ── COLLAPSIBLE CARDS ─────────────────────────────────────────
+document.getElementById('natalToggle').addEventListener('click',()=>{
+  const body=document.getElementById('natalBody');
+  const chevron=document.getElementById('natalChevron');
+  body.classList.toggle('hidden');
+  chevron.classList.toggle('open');
+});
+document.getElementById('calendarToggle').addEventListener('click',()=>{
+  const body=document.getElementById('calendarBody');
+  const chevron=document.getElementById('calendarChevron');
+  const wasHidden=body.classList.contains('hidden');
+  body.classList.toggle('hidden');
+  chevron.classList.toggle('open');
+  if(wasHidden && natalPositions){
+    calendarBuilt=false;
+    buildCalendar(currentDate,natalPositions);
+  }
+});
+
+document.getElementById('saveNatalBtn').addEventListener('click',saveNatal);
+document.getElementById('clearNatalBtn').addEventListener('click',clearNatal);
+
+// ── STAN CZASU ────────────────────────────────────────────────
+let currentDate=new Date(), isLive=true, isAnimating=false;
+let animSpeed=7, animFrame=null, lastAnimTs=null;
+
+// ── RENDER ────────────────────────────────────────────────────
+function render(d){
+  document.getElementById('current-date').textContent=
+    d.toLocaleDateString('pl-PL',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'UTC'})+' UTC';
+  document.getElementById('modeBadge').classList.toggle('visible',!isLive);
+  document.getElementById('liveDot').classList.toggle('paused',!isLive);
+  document.getElementById('liveLabel').textContent=isLive?'NA ŻYWO':'TRYB HISTORYCZNY';
+  const iso=d.toISOString();
+  document.getElementById('datePicker').value=iso.slice(0,10);
+  document.getElementById('timePicker').value=iso.slice(11,16);
+
+  const data=calcData(d);
+  renderList(data);
+  drawWheel(data,natalPositions);
+
+  const phase=moonPhase(data);
+  if(phase){
+    document.getElementById('moonEmoji').textContent=phase.emoji;
+    document.getElementById('moonName').textContent=phase.name;
+    document.getElementById('moonPct').textContent=phase.illum+'%';
+    document.getElementById('moonFill').style.width=phase.illum+'%';
+  }
+
+  const aspects=calcAspects(data);
+  const seen=new Set();
+  const legEl=document.getElementById('aspectLegend');
+  if(legEl){
+    legEl.innerHTML='';
+    aspects.forEach(({asp})=>{
+      if(seen.has(asp.name)) return; seen.add(asp.name);
+      const item=document.createElement('div'); item.className='asp-item';
+      const line=document.createElement('div'); line.className='asp-line';
+      line.style.background=asp.color.replace(/[\d.]+\)/,'1)');
+      if(asp.dash) line.style.backgroundImage=`repeating-linear-gradient(90deg,${line.style.background} 0,${line.style.background} 4px,transparent 4px,transparent 7px)`;
+      item.appendChild(line);
+      item.appendChild(document.createTextNode(asp.name));
+      legEl.appendChild(item);
+    });
+  }
+
+  // Premium features
+  const isPremium=!document.body.classList.contains('basic-mode');
+  if(isPremium){
+    renderActiveTransits(data,natalPositions);
+    // Calendar: rebuild only if open
+    const calBody=document.getElementById('calendarBody');
+    if(calBody && !calBody.classList.contains('hidden')){
+      buildCalendar(d,natalPositions);
+    }
+  }
+}
+
+// ── CZAS ─────────────────────────────────────────────────────
+function stepDate(d,amount,unit){
+  const MS={minute:60000,hour:3600000,day:86400000,week:604800000};
+  if(unit==='month'){const nd=new Date(d);nd.setUTCMonth(nd.getUTCMonth()+amount);return nd;}
+  if(unit==='year') {const nd=new Date(d);nd.setUTCFullYear(nd.getUTCFullYear()+amount);return nd;}
+  return new Date(d.getTime()+amount*(MS[unit]||MS.day));
+}
+function goToDate(d){currentDate=d;isLive=false;calendarBuilt=false;render(currentDate);}
+function goLive(){currentDate=new Date();isLive=true;stopAnimation();calendarBuilt=false;render(currentDate);}
+
+function startAnimation(){
+  if(isAnimating) return;
+  isAnimating=true; isLive=false; lastAnimTs=null;
+  document.getElementById('animBtn').textContent='⏸ Pauza';
+  document.getElementById('animBtn').classList.add('active-anim');
+  (function tick(ts){
+    if(!lastAnimTs) lastAnimTs=ts;
+    currentDate=new Date(currentDate.getTime()+animSpeed*86400000*(ts-lastAnimTs)/1000);
+    lastAnimTs=ts;
+    render(currentDate);
+    animFrame=requestAnimationFrame(tick);
+  })(performance.now());
+}
+function stopAnimation(){
+  isAnimating=false;
+  if(animFrame){cancelAnimationFrame(animFrame);animFrame=null;}
+  document.getElementById('animBtn').textContent='▶ Odtwórz';
+  document.getElementById('animBtn').classList.remove('active-anim');
+}
+
+// ── EVENTY ───────────────────────────────────────────────────
+document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{
+  stopAnimation(); goToDate(stepDate(currentDate,parseInt(b.dataset.step),b.dataset.unit));
+}));
+document.getElementById('jumpBtn').addEventListener('click',()=>{
+  stopAnimation();
+  const dp=document.getElementById('datePicker').value;
+  const tp=document.getElementById('timePicker').value||'12:00';
+  if(dp){calendarBuilt=false;goToDate(new Date(dp+'T'+tp+':00Z'));}
+});
+document.getElementById('nowBtn').addEventListener('click',()=>goLive());
+document.getElementById('animBtn').addEventListener('click',()=>isAnimating?stopAnimation():startAnimation());
+document.querySelectorAll('[data-animspeed]').forEach(b=>b.addEventListener('click',()=>{
+  animSpeed=parseFloat(b.dataset.animspeed);
+  document.querySelectorAll('[data-animspeed]').forEach(x=>x.classList.remove('active-anim'));
+  b.classList.add('active-anim');
+  if(isAnimating){stopAnimation();startAnimation();}
+}));
+document.getElementById('darkToggle').addEventListener('click',function(){
+  document.body.classList.toggle('dark');
+  this.textContent=document.body.classList.contains('dark')?'☀️':'🌙';
+  render(currentDate);
+});
+setInterval(()=>{if(isLive&&!isAnimating){currentDate=new Date();render(currentDate);}},60000);
+
+// ── BOOTSTRAP ─────────────────────────────────────────────────
+async function bootstrap(){
+  document.getElementById('loadingMsg').style.display='flex';
+  try{
+    await initSwe();
+    document.getElementById('loadingMsg').style.display='none';
+  }catch(e){
+    console.error('Swiss Ephemeris init error:', e);
+    const msg=document.getElementById('loadingMsg');
+    msg.innerHTML=`
+      <div style="text-align:center;max-width:400px;">
+        <div style="font-size:24px;margin-bottom:10px;">⚠</div>
+        <div style="font-size:14px;margin-bottom:15px;">Nie można załadować Swiss Ephemeris</div>
+        <div style="font-size:11px;color:#90b0d8;margin-bottom:15px;">${e.message||'Błąd połączenia z CDN'}</div>
+        <button onclick="location.reload()" style="background:#2d5a8e;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:Raleway,sans-serif;font-size:12px;font-weight:600;">Spróbuj ponownie</button>
+      </div>`;
+    return;
+  }
+
+  // Apply saved mode
+  applyMode(isPremiumMode());
+
+  // Load natal data if saved
+  const storedNatal=loadNatalFromStorage();
+  if(storedNatal) applyNatalData(storedNatal);
+
+  render(currentDate);
+}
+bootstrap();
+</script>
+</body>
+</html>
