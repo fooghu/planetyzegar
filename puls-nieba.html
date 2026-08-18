@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Puls Nieba</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f4f6fb; --white:#fff; --accent:#1e3a5f; --accent2:#2d5a8e;
+  --teal:#1a7a8a; --muted:#6070a0; --border:#dce4f4;
+  --shadow:0 4px 22px rgba(30,58,95,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:transparent;font-family:"Raleway",sans-serif;display:flex;justify-content:center;padding:4px;}
+
+.card{
+  width:100%;max-width:480px;background:var(--white);border-radius:12px;
+  box-shadow:var(--shadow);border-top:3px solid var(--accent);
+  padding:26px 28px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;
+}
+
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.eyebrow .dot{width:6px;height:6px;background:#27ae60;border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+.moon-emoji{font-size:52px;line-height:1;margin:3px 0;filter:drop-shadow(0 2px 5px rgba(30,58,95,0.15));}
+.phase-name{font-size:18px;font-weight:700;color:var(--accent);}
+.sign-line{font-family:"Lora",serif;font-style:italic;font-size:15px;color:var(--teal);margin-bottom:2px;}
+.illum{font-size:11px;color:var(--muted);letter-spacing:0.3px;margin-bottom:5px;}
+
+.retro-badge{
+  display:inline-flex;align-items:center;gap:4px;background:#fdf3ea;border:1px solid #f0d4b8;
+  border-radius:16px;padding:4px 12px;font-size:11px;font-weight:700;color:#a4620f;margin-bottom:5px;
+}
+
+.cta-btn{
+  display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);
+  color:#fff;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:0.3px;
+  padding:11px 18px;border-radius:8px;margin-top:7px;width:100%;justify-content:center;
+  box-shadow:0 3px 8px rgba(30,58,95,0.22);
+}
+
+.loading{color:var(--muted);font-size:11px;font-style:italic;}
+.engine-tag{font-size:8px;color:var(--border);letter-spacing:0.5px;margin-top:8px;}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="eyebrow"><span class="dot"></span>Puls Nieba</div>
+  <div class="moon-emoji" id="moonEmoji">🌙</div>
+  <div class="phase-name" id="phaseName"><span class="loading">Wczytywanie…</span></div>
+  <div class="sign-line" id="signLine"></div>
+  <div class="illum" id="illum"></div>
+  <div id="retroSlot"></div>
+  <a class="cta-btn" href="https://www.astrologiaewolucyjna.com/zegar" target="_top">Pełny Kosmogram →</a>
+</div>
+
+<script type="module">
+// ── TEN SAM SILNIK CO GŁÓWNY ZEGAR: Swiss Ephemeris WASM ──────
+// Wymaga hostowania jako osobna strona (GitHub Pages) + osadzenia
+// przez <iframe src="..."> w Wix — NIE działa wklejone bezpośrednio
+// jako "Embed HTML" (Wix sandboxuje inline script i blokuje moduły).
+let SwissEph;
+try {
+  SwissEph = (await import('https://cdn.jsdelivr.net/gh/prolaxu/swisseph-wasm@main/src/swisseph.js')).default;
+} catch(e1) {
+  try {
+    SwissEph = (await import('https://unpkg.com/swisseph@latest/dist/swisseph.mjs')).default;
+  } catch(e2) {
+    document.getElementById('phaseName').innerHTML = '<span style="color:#b03030;font-size:11px;">Niedostępne</span>';
+    throw e2;
+  }
+}
+
+const DEG=Math.PI/180;
+function norm(d){return((d%360)+360)%360;}
+
+const SIGN_GEN=['Barana','Byka','Bliźniąt','Raka','Lwa','Panny','Wagi','Skorpiona','Strzelca','Koziorożca','Wodnika','Ryb'];
+function signGenitive(lon){return SIGN_GEN[Math.floor(norm(lon)/30)];}
+
+// Ciała do sprawdzenia retrogradacji (bez Słońca/Księżyca — te nigdy nie cofają się)
+const RETRO_BODIES=[
+  {name:'Merkury',sweId:2},{name:'Wenus',sweId:3},{name:'Mars',sweId:4},
+  {name:'Jowisz',sweId:5},{name:'Saturn',sweId:6},{name:'Uran',sweId:7},
+  {name:'Neptun',sweId:8},{name:'Pluton',sweId:9},
+];
+
+const MOON_PHASES=[
+  {max:22.5,  name:'Nów',                emoji:'🌑'},
+  {max:67.5,  name:'Przybywający Sierp', emoji:'🌒'},
+  {max:112.5, name:'Pierwsza Kwadra',    emoji:'🌓'},
+  {max:157.5, name:'Przybywający Garb',  emoji:'🌔'},
+  {max:202.5, name:'Pełnia',             emoji:'🌕'},
+  {max:247.5, name:'Ubywający Garb',     emoji:'🌖'},
+  {max:292.5, name:'Ostatnia Kwadra',    emoji:'🌗'},
+  {max:337.5, name:'Ubywający Sierp',    emoji:'🌘'},
+  {max:360.1, name:'Nów',                emoji:'🌑'},
+];
+function moonPhaseInfo(sunLon,moonLon){
+  const angle=norm(moonLon-sunLon);
+  const phase=MOON_PHASES.find(p=>angle<p.max);
+  const illum=Math.round((1-Math.cos(angle*DEG))/2*100);
+  return {...phase, illum};
+}
+
+let sweEngine=null;
+async function initSwe(){
+  const swe=new SwissEph();
+  await swe.initSwissEph();
+  sweEngine=swe;
+}
+
+async function render(){
+  if(!sweEngine) await initSwe();
+  const now=new Date();
+  const jd=sweEngine.julday(
+    now.getUTCFullYear(), now.getUTCMonth()+1, now.getUTCDate(),
+    now.getUTCHours()+now.getUTCMinutes()/60+now.getUTCSeconds()/3600
+  );
+  const FLAG=(sweEngine.SEFLG_SWIEPH||2)|(sweEngine.SEFLG_SPEED||256);
+
+  const sunLon  = norm(sweEngine.calc_ut(jd,0,FLAG)[0]);
+  const moonLon = norm(sweEngine.calc_ut(jd,1,FLAG)[0]);
+  const moonSign = signGenitive(moonLon);
+  const phase = moonPhaseInfo(sunLon, moonLon);
+
+  document.getElementById('moonEmoji').textContent = phase.emoji;
+  document.getElementById('phaseName').textContent = phase.name;
+  document.getElementById('signLine').textContent = 'Księżyc w Znaku '+moonSign;
+  document.getElementById('illum').textContent = phase.illum+'% oświetlenia';
+
+  const retro=[];
+  RETRO_BODIES.forEach(b=>{
+    try{
+      const r=sweEngine.calc_ut(jd,b.sweId,FLAG);
+      if(r[3]<0) retro.push(b.name);
+    }catch(e){}
+  });
+
+  const slot=document.getElementById('retroSlot');
+  slot.innerHTML='';
+  if(retro.length){
+    const badge=document.createElement('div');
+    badge.className='retro-badge';
+    badge.textContent='℞ '+retro.join(', ');
+    slot.appendChild(badge);
+  }
+}
+
+render();
+setInterval(render, 5*60*1000);
+</script>
+
+</body>
+</html>
