@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Puls Nieba</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold:#d4af6a;
+  --heading:#f7f4ea; --sign-color:#b3c2f0; --muted:#93a2c9;
+  --border:rgba(255,255,255,0.16);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:transparent!important;}
+body{
+  font-family:"Raleway",sans-serif;display:flex;justify-content:center;padding:4px;
+}
+
+.card{
+  width:100%;max-width:480px;background:rgba(24,36,88,0.5);border-radius:14px;
+  backdrop-filter:blur(18px) saturate(150%); -webkit-backdrop-filter:blur(18px) saturate(150%);
+  border:1px solid rgba(255,255,255,0.14); border-top:2px solid rgba(212,175,110,0.65);
+  box-shadow:0 10px 34px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+  padding:30px 30px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;
+}
+
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#7fd8d3;display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.eyebrow .dot{width:7px;height:7px;background:#3ddc84;border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+.moon-icon{width:64px;height:64px;margin:4px 0;filter:drop-shadow(0 3px 10px rgba(0,0,0,0.4));}
+.phase-name{font-size:22px;font-weight:700;color:var(--heading);}
+.sign-line{font-family:"Lora",serif;font-style:italic;font-size:18px;color:var(--sign-color);margin-bottom:3px;}
+.illum{font-size:14px;color:var(--muted);letter-spacing:0.3px;margin-bottom:6px;}
+.eta{font-size:13px;color:var(--muted);letter-spacing:0.3px;margin-bottom:7px;opacity:0.85;}
+
+.retro-badge{
+  display:inline-flex;align-items:center;gap:5px;background:rgba(212,162,58,0.18);border:1px solid rgba(212,162,58,0.45);
+  border-radius:18px;padding:6px 14px;font-size:13px;font-weight:700;color:#f0c674;margin-bottom:6px;
+  cursor:default;
+}
+
+.retro-tooltip{
+  display:none;position:fixed;z-index:9999;background:rgba(10,16,42,0.97);
+  border:1px solid rgba(212,175,110,0.4);border-radius:8px;padding:8px 14px;
+  font-size:12px;font-weight:600;color:#f0dfae;white-space:nowrap;
+  box-shadow:0 6px 20px rgba(0,0,0,0.4);pointer-events:none;
+}
+
+.voc-badge{
+  display:inline-flex;align-items:center;gap:5px;background:rgba(180,140,230,0.18);border:1px solid rgba(180,140,230,0.45);
+  border-radius:18px;padding:6px 14px;font-size:13px;font-weight:700;color:#d4b8f5;margin-bottom:6px;
+}
+
+.cta-btn{
+  display:inline-flex;align-items:center;gap:5px;background:none;
+  color:var(--muted);text-decoration:none;font-size:12.5px;font-weight:600;letter-spacing:0.4px;
+  padding-top:12px;margin-top:9px;width:100%;justify-content:center;
+  border-top:1px solid var(--border);text-transform:uppercase;
+  transition:color 0.15s ease;
+}
+.cta-btn:hover{color:var(--gold);}
+
+.loading{color:var(--muted);font-size:13px;font-style:italic;}
+.engine-tag{font-size:8px;color:var(--border);letter-spacing:0.5px;margin-top:8px;}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="eyebrow"><span class="dot"></span>Puls Nieba</div>
+  <svg class="moon-icon" id="moonIcon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"></svg>
+  <div class="phase-name" id="phaseName"><span class="loading">Wczytywanie…</span></div>
+  <div class="sign-line" id="signLine"></div>
+  <div class="illum" id="illum"></div>
+  <div class="eta" id="fullMoonEta"></div>
+  <div class="eta" id="etaSlot"></div>
+  <div id="retroSlot"></div>
+  <div id="vocSlot"></div>
+  <a class="cta-btn" href="https://www.astrologiaewolucyjna.com/zegar" target="_top">Pełny Kosmogram →</a>
+</div>
+
+<div id="retroTooltip" class="retro-tooltip"></div>
+
+<script type="module">
+// ── TEN SAM SILNIK CO GŁÓWNY ZEGAR: Swiss Ephemeris WASM ──────
+// Wymaga hostowania jako osobna strona (GitHub Pages) + osadzenia
+// przez <iframe src="..."> w Wix — NIE działa wklejone bezpośrednio
+// jako "Embed HTML" (Wix sandboxuje inline script i blokuje moduły).
+let SwissEph;
+try {
+  SwissEph = (await import('https://cdn.jsdelivr.net/gh/prolaxu/swisseph-wasm@main/src/swisseph.js')).default;
+} catch(e1) {
+  try {
+    SwissEph = (await import('https://unpkg.com/swisseph@latest/dist/swisseph.mjs')).default;
+  } catch(e2) {
+    document.getElementById('phaseName').innerHTML = '<span style="color:#b03030;font-size:11px;">Niedostępne</span>';
+    throw e2;
+  }
+}
+
+const DEG=Math.PI/180;
+function norm(d){return((d%360)+360)%360;}
+
+const SIGN_GEN=['Barana','Byka','Bliźniąt','Raka','Lwa','Panny','Wagi','Skorpiona','Strzelca','Koziorożca','Wodnika','Ryb'];
+function signGenitive(lon){return SIGN_GEN[Math.floor(norm(lon)/30)];}
+const SIGN_NOM=['Baran','Byk','Bliźnięta','Rak','Lew','Panna','Waga','Skorpion','Strzelec','Koziorożec','Wodnik','Ryby'];
+
+// ── PUSTA DROGA KSIĘŻYCA (Void of Course) ──────────────────────
+// Sprawdza wszystkie 5 aspektów ptolemejskich (0/60/90/120/180°) Księżyca
+// do wszystkich ciał; jeśli żaden nie zdąży się dopełnić zanim Księżyc
+// zmieni znak, jest to okres "pustej drogi".
+const VOC_ASPECTS=[0,60,90,120,180];
+function checkVoidOfCourse(moonLon, bodyLons){
+  const signIdx=Math.floor(norm(moonLon)/30);
+  const signEnd=(signIdx+1)*30;
+  const degToSignEnd=norm(signEnd-moonLon);
+  let isVoid=true;
+  bodyLons.forEach(lon=>{
+    VOC_ASPECTS.forEach(asp=>{
+      const targets = asp===0 ? [norm(lon)]
+                    : asp===180 ? [norm(lon+180)]
+                    : [norm(lon+asp), norm(lon-asp)];
+      targets.forEach(t=>{
+        const delta=norm(t-moonLon);
+        if(delta>0.0001 && delta<degToSignEnd) isVoid=false;
+      });
+    });
+  });
+  return {isVoid, nextSignName:SIGN_NOM[(signIdx+1)%12]};
+}
+
+// Ciała do sprawdzenia retrogradacji (bez Słońca/Księżyca — te nigdy nie cofają się)
+const RETRO_BODIES=[
+  {name:'Merkury',sweId:2},{name:'Wenus',sweId:3},{name:'Mars',sweId:4},
+  {name:'Jowisz',sweId:5},{name:'Saturn',sweId:6},{name:'Uran',sweId:7},
+  {name:'Neptun',sweId:8},{name:'Pluton',sweId:9},
+];
+
+const MOON_PHASES=[
+  {max:45,    name:'Nów',                  emoji:'🌑'},
+  {max:90,    name:'Sierp przybywający',   emoji:'🌒'},
+  {max:135,   name:'Pierwsza kwadra',      emoji:'🌓'},
+  {max:180,   name:'Garb przybywający',    emoji:'🌔'},
+  {max:225,   name:'Pełnia',               emoji:'🌕'},
+  {max:270,   name:'Garb ubywający',       emoji:'🌖'},
+  {max:315,   name:'Ostatnia kwadra',      emoji:'🌗'},
+  {max:360.1, name:'Sierp ubywający',      emoji:'🌘'},
+];
+function moonPhaseInfo(sunLon,moonLon){
+  const angle=norm(moonLon-sunLon);
+  const phase=MOON_PHASES.find(p=>angle<p.max);
+  const illum=Math.round((1-Math.cos(angle*DEG))/2*100);
+  return {...phase, illum, angle};
+}
+
+// ── WŁASNA IKONA KSIĘŻYCA (SVG) — zamiast emoji ────────────────
+// Rysuje dokładny kształt oświetlenia na podstawie kąta separacji
+// Słońce-Księżyc (nie przybliżoną nazwę fazy). Geometrycznie
+// zweryfikowane: powierzchnia oświetlona = (1-cosθ)/2, zgodnie
+// z rzeczywistą frakcją iluminacji.
+function moonIconPath(angleDeg, R, cx, cy, segments){
+  segments = segments || 48;
+  const theta = norm(angleDeg);
+  const waxing = theta <= 180;
+  const outerSide = waxing ? 1 : -1;
+  const cosT = Math.cos(theta*DEG);
+  const rx = R*Math.abs(cosT);
+  const f = (1-cosT)/2;
+  const crescent = f < 0.5;
+  const termSide = crescent ? outerSide : -outerSide;
+  const pts=[];
+  for(let i=0;i<=segments;i++){
+    const t=Math.PI*i/segments;
+    pts.push([cx+outerSide*R*Math.sin(t), cy-R*Math.cos(t)]);
+  }
+  for(let i=0;i<=segments;i++){
+    const t=Math.PI-Math.PI*i/segments;
+    pts.push([cx+termSide*rx*Math.sin(t), cy-R*Math.cos(t)]);
+  }
+  return 'M '+pts.map(p=>p[0].toFixed(2)+' '+p[1].toFixed(2)).join(' L ')+' Z';
+}
+function renderMoonIcon(angleDeg){
+  const svg=document.getElementById('moonIcon');
+  const R=28, cx=32, cy=32;
+  const litPath=moonIconPath(angleDeg, R, cx, cy);
+  svg.innerHTML=
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="rgba(10,18,50,0.55)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>'+
+    '<path d="'+litPath+'" fill="url(#moonGrad)"/>'+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>'+
+    '<defs><radialGradient id="moonGrad" cx="35%" cy="30%" r="75%">'+
+    '<stop offset="0%" stop-color="#fdf6e3"/><stop offset="60%" stop-color="#f0dfae"/><stop offset="100%" stop-color="#d4af6a"/>'+
+    '</radialGradient></defs>';
+}
+
+let sweEngine=null;
+async function initSwe(){
+  const swe=new SwissEph();
+  await swe.initSwissEph();
+  sweEngine=swe;
+}
+
+// ── CZAS DO ZMIANY ZNAKU PRZEZ KSIĘŻYC ─────────────────────────
+// Dwuetapowe dopasowanie: pierwsze przybliżenie z bieżącej prędkości,
+// druga próbka w przybliżonym momencie koryguje błąd (orbita eliptyczna).
+async function timeToSignEnd(jd, moonLon, moonSpeed){
+  const signEnd=(Math.floor(norm(moonLon)/30)+1)*30;
+  const degToEnd=norm(signEnd-moonLon);
+  let tDays=degToEnd/moonSpeed;
+  try{
+    const FLAG=(sweEngine.SEFLG_SWIEPH||2)|(sweEngine.SEFLG_SPEED||256);
+    const r2=sweEngine.calc_ut(jd+tDays, 1, FLAG);
+    const lon2=norm(r2[0]);
+    let residual=norm(signEnd-lon2);
+    if(residual>180) residual-=360;
+    tDays+=residual/(r2[3]||moonSpeed);
+  }catch(e){}
+  return tDays;
+}
+function formatDuration(days){
+  const totalMin=Math.round(days*24*60);
+  const h=Math.floor(totalMin/60), m=totalMin%60;
+  if(h>=24){ const d=Math.floor(h/24), hh=h%24; return d+'d '+hh+'h'; }
+  return h+'h '+m+'min';
+}
+
+// ── CZAS DO NAJBLIŻSZEJ DOKŁADNEJ PEŁNI (opozycja 180°) ─────────
+// Prędkość synodyczna = prędkość Księżyca minus prędkość Słońca
+// (bo obie długości rosną, Pełnia to moment gdy ich różnica = 180°).
+async function timeToFullMoon(jd, phaseAngle, moonSpeed, sunSpeed){
+  const relSpeed=moonSpeed-sunSpeed;
+  const degToFull=norm(180-phaseAngle);
+  let tDays=degToFull/relSpeed;
+  try{
+    const FLAG=(sweEngine.SEFLG_SWIEPH||2)|(sweEngine.SEFLG_SPEED||256);
+    const jd2=jd+tDays;
+    const sun2=sweEngine.calc_ut(jd2,0,FLAG);
+    const moon2=sweEngine.calc_ut(jd2,1,FLAG);
+    const angle2=norm(norm(moon2[0])-norm(sun2[0]));
+    let residual=norm(180-angle2);
+    if(residual>180) residual-=360;
+    const relSpeed2=moon2[3]-sun2[3];
+    tDays+=residual/(relSpeed2||relSpeed);
+  }catch(e){}
+  return tDays;
+}
+
+async function render(){
+  if(!sweEngine) await initSwe();
+  const now=new Date();
+  const jd=sweEngine.julday(
+    now.getUTCFullYear(), now.getUTCMonth()+1, now.getUTCDate(),
+    now.getUTCHours()+now.getUTCMinutes()/60+now.getUTCSeconds()/3600
+  );
+  const FLAG=(sweEngine.SEFLG_SWIEPH||2)|(sweEngine.SEFLG_SPEED||256);
+
+  const sunR   = sweEngine.calc_ut(jd,0,FLAG);
+  const sunLon = norm(sunR[0]);
+  const sunSpeed = sunR[3];
+  const moonR   = sweEngine.calc_ut(jd,1,FLAG);
+  const moonLon = norm(moonR[0]);
+  const moonSpeed = moonR[3];
+  const moonSign = signGenitive(moonLon);
+  const phase = moonPhaseInfo(sunLon, moonLon);
+  const etaStr = formatDuration(await timeToSignEnd(jd, moonLon, moonSpeed));
+  const fullMoonStr = formatDuration(await timeToFullMoon(jd, phase.angle, moonSpeed, sunSpeed));
+
+  renderMoonIcon(phase.angle);
+  document.getElementById('phaseName').textContent = phase.name;
+  document.getElementById('signLine').textContent = 'Księżyc w Znaku '+moonSign;
+  document.getElementById('illum').textContent = phase.angle.toFixed(1)+'° od Słońca';
+  document.getElementById('fullMoonEta').textContent = '🌕 Najbliższa Pełnia za '+fullMoonStr;
+
+  // Zbieramy długości ciał raz — używane i do retrogradacji, i do Pustej Drogi
+  const bodyLons=[sunLon];
+  const retro=[];
+  RETRO_BODIES.forEach(b=>{
+    try{
+      const r=sweEngine.calc_ut(jd,b.sweId,FLAG);
+      bodyLons.push(norm(r[0]));
+      if(r[3]<0) retro.push(b.name);
+    }catch(e){}
+  });
+
+  const retroSlot=document.getElementById('retroSlot');
+  retroSlot.innerHTML='';
+  if(retro.length){
+    const badge=document.createElement('div');
+    badge.className='retro-badge';
+    badge.textContent='℞ '+retro.join(', ');
+    badge.addEventListener('mouseenter',(e)=>{
+      const tip=document.getElementById('retroTooltip');
+      tip.textContent='Planety w retrogradacji: '+retro.join(', ');
+      tip.style.display='block';
+      const rect=badge.getBoundingClientRect();
+      tip.style.left=(rect.left+rect.width/2)+'px';
+      tip.style.top=(rect.top-8)+'px';
+      tip.style.transform='translate(-50%, -100%)';
+    });
+    badge.addEventListener('mouseleave',()=>{
+      document.getElementById('retroTooltip').style.display='none';
+    });
+    retroSlot.appendChild(badge);
+  }
+
+  const voc=checkVoidOfCourse(moonLon, bodyLons);
+  const vocSlot=document.getElementById('vocSlot');
+  const etaSlot=document.getElementById('etaSlot');
+  vocSlot.innerHTML=''; etaSlot.innerHTML='';
+  if(voc.isVoid){
+    const badge=document.createElement('div');
+    badge.className='voc-badge';
+    badge.textContent='∅ Pusta Droga → '+voc.nextSignName+' (za '+etaStr+')';
+    vocSlot.appendChild(badge);
+  }else{
+    etaSlot.textContent='Zmiana znaku za '+etaStr+' → '+voc.nextSignName;
+  }
+}
+
+render();
+setInterval(render, 5*60*1000);
+</script>
+
+</body>
+</html>
